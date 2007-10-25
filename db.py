@@ -10,7 +10,7 @@ class Episode(object):
     __storm_table__ = 'episode'
     id = Int(primary=True)
     show_id = Int()
-    name = Unicode()
+    name = Unicode() # SxxEyy
     torrent = Unicode()
     size = Int()
     queued = Boolean()
