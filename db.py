@@ -1,5 +1,7 @@
+from storm.locals import *
+
 class Show(object):
-    __storm_table__ = 'serie'
+    __storm_table__ = 'shows'
     id = Int(primary=True)
     name = Unicode()
     regexp_filter = Unicode()
@@ -7,10 +9,11 @@ class Show(object):
     max_size = Int()
 
 class Episode(object):
-    __storm_table__ = 'episode'
+    __storm_table__ = 'episodes'
     id = Int(primary=True)
     show_id = Int()
-    name = Unicode()
+    name = Unicode() # SxxEyy
+    filename = Unicode()
     torrent = Unicode()
     size = Int()
     queued = Boolean()
