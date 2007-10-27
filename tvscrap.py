@@ -13,10 +13,10 @@ from optparse import OptionParser
 # + tvscrap.py --dump-config
 
 parser = OptionParser()
+parser.add_option("-w","--list-shows", dest="listshows", action="store_true", help="")
+parser.add_option("-l","--list-episodes", dest="listepisodes", help="", metavar="SHOW")
 parser.add_option("-r","--register-show", dest="show", help="", metavar="SHOW")
 parser.add_option("-x","--regexp", dest="regexp", help="", metavar="RX")
-parser.add_option("-l","--list-episodes", dest="listepisodes", help="", metavar="SHOW")
-parser.add_option("-w","--list-shows", dest="listshows", action="store_true", help="")
 parser.add_option("-g","--get", dest="getvar", help="", metavar="VARIABLE")
 parser.add_option("-s","--set", dest="setvar", help="", metavar="VARIABLE")
 parser.add_option("-v","--value", dest="value", help="", metavar="VALUE")
