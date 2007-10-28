@@ -20,6 +20,8 @@ class Scrapper(object):
 
     def _parse_frontpage(self):
         #url = urllib.urlopen("http://eztvefnet.org/frontpage.php")
+        #url = urllib.urlopen("http://eztv.nl/frontpage.php")
+        #url = urllib.urlopen("http://eztv.it/frontpage.php")
         #html = url.read()
         html = file("frontpage-wed.php.html","rt").read()
         soup = BeautifulSoup(html)
