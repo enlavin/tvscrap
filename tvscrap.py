@@ -36,7 +36,11 @@ def list_shows():
 def list_episodes(showname):
     print "list_episodes(%s)" % showname
 
-def register_show(showname, regexp, minsize=0, maxsize=0):
+def register_show(showname, regexp, minsize=0.0, maxsize=0.0):
+    if not minsize:
+        minsize = 0.0
+    if not maxsize:
+        maxsize = 0.0
     print "register_show(%s, %s, %3.1f, %3.1f)" % (showname, regexp, minsize, maxsize)
 
 def getvar(varname):
@@ -52,14 +56,25 @@ def download_torrents():
     print "download_torrents()"
 
 def check_args(options, args):
+    # Solo un comando activo
+    commands = ['listshows','listepisodes','show','getvar','setvar','dump']
+    for c in commands:
+        if not getattr(options, c):
+            continue
+        other_commands = [cc for cc in commands if cc <> c]
+        for rc in other_commands:
+            if getattr(options, rc):                
+                return False
+
     # Dependencias
     check_args = True
     if options.show and not options.regexp:
         check_args = False
+    if (options.minsize or options.maxsize) and not options.show:
+        check_args = False
     return check_args
 
 def main():
-    
     parser = define_cmdline_options()
     (options, args) = parser.parse_args()
 
