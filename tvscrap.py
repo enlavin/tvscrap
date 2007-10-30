@@ -5,7 +5,9 @@ from BeautifulSoup import BeautifulSoup
 import re
 from eztvefnet import Scrapper
 from optparse import OptionParser
+import sys
 
+import db
 from config import *
 
 # ideas:
@@ -63,7 +65,7 @@ def check_args(options, args):
             continue
         other_commands = [cc for cc in commands if cc <> c]
         for rc in other_commands:
-            if getattr(options, rc):                
+            if getattr(options, rc):
                 return False
 
     # Dependencias
@@ -81,7 +83,7 @@ def main():
     if not check_args(options, args):
         parser.print_help()
         exit(1)
-        
+
     if options.listshows:
         list_shows()
     elif options.listepisodes:
@@ -98,5 +100,6 @@ def main():
         download_torrents()
 
 if __name__ == '__main__':
+    print repr(sys.argv)
     main()
 

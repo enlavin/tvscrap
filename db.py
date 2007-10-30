@@ -1,4 +1,5 @@
 from storm.locals import *
+import config
 
 class Show(object):
     __storm_table__ = 'shows'
@@ -16,7 +17,27 @@ class Episode(object):
     filename = Unicode()
     torrent = Unicode()
     size = Int()
-    queued = Boolean()
-    downloaded = Boolean()
+    queued = Bool()
+    downloaded = Bool()
 
+class Config(object):
+    __storm_table__ = 'config'
+    id = Int(primary=True)
+    varname = Unicode()
+    value = Unicode()
 
+import sys
+import os.path
+def get_program_folder():
+    pass
+
+def get_db_filename():
+    try:
+        if len(config.DB) > 0 and config.DB[0] == '/':
+            pass
+    except AttributeError:
+        return os.path.join(get_program_folder(), "tvscrap.db")
+
+def connect():
+
+    dsn = "sqlite:%s" % dbpath
