@@ -1,0 +1,3 @@
+
+DB="tvscrap.db"
+
