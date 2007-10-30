@@ -40,7 +40,7 @@ class TVScrap(object):
 
     def list_episodes(self, showname):
         print "list_episodes(%s)" % showname
-        for epi in self.store.find(Episode, Show.name == unicode(showname)):
+        for epi in self.store.find(Episode, Episode.show_id == Show.id, Show.name == unicode(showname)):
             print "%s|%s|%s|%3.1f" % (epi.name, epi.filename, epi.torrent, epi.size)
 
     def register_show(self, showname, regexp, minsize=0.0, maxsize=0.0):
