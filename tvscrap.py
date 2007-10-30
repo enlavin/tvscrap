@@ -1,13 +1,9 @@
-from storm.locals import *
-import urllib
-#import hachoir_metadata
-from BeautifulSoup import BeautifulSoup
 import re
-from eztvefnet import Scrapper
-from optparse import OptionParser
 import sys
-
-import db
+from optparse import OptionParser
+from storm.locals import *
+from eztvefnet import Scrapper
+from db import Show, Episode, Config, connect_db
 from config import *
 
 # ideas:
@@ -18,88 +14,111 @@ from config import *
 # + tvscrap.py --list-shows
 # + tvscrap.py --list-episodes SHOW
 
-def define_cmdline_options():
-    parser = OptionParser()
-    parser.add_option("-l","--list-shows", dest="listshows", action="store_true", help="show list of registered shows")
-    parser.add_option("-e","--list-episodes", dest="listepisodes", help="show list of downloaded episodes", metavar="SHOW")
-    parser.add_option("-r","--register-show", dest="show", help="show name", metavar="SHOW")
-    parser.add_option("-x","--regexp", dest="regexp", help="regular expression", metavar="RX")
-    parser.add_option("-g","--get", dest="getvar", help="", metavar="VARIABLE")
-    parser.add_option("-s","--set", dest="setvar", help="", metavar="VARIABLE")
-    parser.add_option("-v","--value", dest="value", help="", metavar="VALUE")
-    parser.add_option("-d","--dump-config", dest="dump", action="store_true", help="", metavar="DUMP")
-    parser.add_option("-m","--min-size", dest="minsize", type="float", help="min size in Mb", metavar="MINSIZE")
-    parser.add_option("-n","--max-size", dest="maxsize", type="float", help="max size in Mb", metavar="MAXSIZE")
-    return parser
+class TVScrap(object):
+    def __init__(self):
+        self.db = connect_db()
+        self.store = Store(self.db)
 
-def list_shows():
-    print "list_shows()"
+    def define_cmdline_options(self):
+        parser = OptionParser()
+        parser.add_option("-l","--list-shows", dest="listshows", action="store_true", help="show list of registered shows")
+        parser.add_option("-e","--list-episodes", dest="listepisodes", help="show list of downloaded episodes", metavar="SHOW")
+        parser.add_option("-r","--register-show", dest="show", help="show name", metavar="SHOW")
+        parser.add_option("-x","--regexp", dest="regexp", help="regular expression", metavar="RX")
+        parser.add_option("-g","--get", dest="getvar", help="", metavar="VARIABLE")
+        parser.add_option("-s","--set", dest="setvar", help="", metavar="VARIABLE")
+        parser.add_option("-v","--value", dest="value", help="", metavar="VALUE")
+        parser.add_option("-d","--dump-config", dest="dump", action="store_true", help="", metavar="DUMP")
+        parser.add_option("-m","--min-size", dest="minsize", type="float", help="min size in Mb", metavar="MINSIZE")
+        parser.add_option("-n","--max-size", dest="maxsize", type="float", help="max size in Mb", metavar="MAXSIZE")
+        return parser
 
-def list_episodes(showname):
-    print "list_episodes(%s)" % showname
+    def list_shows(self):
+        shows = self.store.find(Show).order_by(Show.name)
+        for s in shows:
+            print s.name
 
-def register_show(showname, regexp, minsize=0.0, maxsize=0.0):
-    if not minsize:
-        minsize = 0.0
-    if not maxsize:
-        maxsize = 0.0
-    print "register_show(%s, %s, %3.1f, %3.1f)" % (showname, regexp, minsize, maxsize)
+    def list_episodes(self, showname):
+        print "list_episodes(%s)" % showname
+        for epi in self.store.find(Episode, Show.name == unicode(showname)):
+            print "%s|%s|%s|%3.1f" % (epi.name, epi.filename, epi.torrent, epi.size)
 
-def getvar(varname):
-    print "getvar(%s)" % varname
+    def register_show(self, showname, regexp, minsize=0.0, maxsize=0.0):
+        if not minsize:
+            minsize = 0.0
+        if not maxsize:
+            maxsize = 0.0
 
-def setvar(varname, value):
-    print "setvar(%s,%s)" % (varname, value)
+        try:
+            show = Show()
+            show.name = unicode(showname)
+            show.regexp_filter = unicode(regexp)
+            show.min_size = minsize
+            show.max_size = maxsize
+            self.store.add(show)
+            self.store.commit()
+            print "%s registrado con exito" % showname
+        except:
+            print "Error al registrar un programa nuevo"
 
-def dump_config():
-    print "dump_config()"
+    def getvar(self, varname):
+        print "getvar(%s)" % varname
 
-def download_torrents():
-    print "download_torrents()"
+    def setvar(self, varname, value):
+        print "setvar(%s,%s)" % (varname, value)
 
-def check_args(options, args):
-    # Solo un comando activo
-    commands = ['listshows','listepisodes','show','getvar','setvar','dump']
-    for c in commands:
-        if not getattr(options, c):
-            continue
-        other_commands = [cc for cc in commands if cc <> c]
-        for rc in other_commands:
-            if getattr(options, rc):
-                return False
+    def dump_config(self):
+        print "dump_config()"
 
-    # Dependencias
-    check_args = True
-    if options.show and not options.regexp:
-        check_args = False
-    if (options.minsize or options.maxsize) and not options.show:
-        check_args = False
-    return check_args
+    def download_torrents(self):
+        print "download_torrents()"
+
+    def check_args(self, options, args):
+        # Solo un comando activo
+        commands = ['listshows','listepisodes','show','getvar','setvar','dump']
+        for c in commands:
+            if not getattr(options, c):
+                continue
+            other_commands = [cc for cc in commands if cc <> c]
+            for rc in other_commands:
+                if getattr(options, rc):
+                    return False
+
+        # Dependencias
+        check_args = True
+        if options.show and not options.regexp:
+            check_args = False
+        if (options.minsize or options.maxsize) and not options.show:
+            check_args = False
+        return check_args
+
+    def run(self):
+        parser = self.define_cmdline_options()
+        (options, args) = parser.parse_args()
+
+        if not self.check_args(options, args):
+            parser.print_help()
+            exit(1)
+
+        if options.listshows:
+            self.list_shows()
+        elif options.listepisodes:
+            self.list_episodes(options.listepisodes)
+        elif options.show and options.regexp:
+            self.register_show(options.show, options.regexp, options.minsize, options.maxsize)
+        elif options.getvar:
+            self.getvar(options.getvar)
+        elif options.setvar and options.value:
+            self.setvar(options.setvar, options.value)
+        elif options.dump:
+            self.dump_config()
+        else:
+            self.download_torrents()
 
 def main():
-    parser = define_cmdline_options()
-    (options, args) = parser.parse_args()
-
-    if not check_args(options, args):
-        parser.print_help()
-        exit(1)
-
-    if options.listshows:
-        list_shows()
-    elif options.listepisodes:
-        list_episodes(options.listepisodes)
-    elif options.show and options.regexp:
-        register_show(options.show, options.regexp, options.minsize, options.maxsize)
-    elif options.getvar:
-        getvar(options.getvar)
-    elif options.setvar and options.value:
-        setvar(options.setvar, options.value)
-    elif options.dump:
-        dump_config()
-    else:
-        download_torrents()
+    tv = TVScrap()
+    tv.run()
 
 if __name__ == '__main__':
-    print repr(sys.argv)
     main()
 
