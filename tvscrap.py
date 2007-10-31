@@ -1,8 +1,11 @@
+#!/usr/bin/env python
+
 import re
 import sys
 from optparse import OptionParser
 from storm.locals import *
 from eztvefnet import Scrapper
+from mldonkey import TorrentDownloader
 from db import Show, Episode, Config, connect_db
 from config import *
 
@@ -88,8 +91,9 @@ class TVScrap(object):
                         except:
                             episode = Episode()
                             episode.name = episode_name
-                            episode.filename = "%s.%s.avi" % (show.name, episode_name)
-                            episode.torrent = "%s.%s.torrent" % (show.name, episode_name)
+                            nospaces_name =  re.sub("\s+", ".", show.name.lstrip().rstrip())
+                            episode.filename = "%s.%s.avi" % (nospaces_name, episode_name)
+                            episode.torrent = "%s.%s.torrent" % (nospaces_name, episode_name)
                             episode.size = row["size"]
                             episode.show = show
                             episode.queued = False
@@ -100,7 +104,8 @@ class TVScrap(object):
                         if episode.queued or episode.downloaded:
                             break
 
-                        print "Download %s %s %s" % (show.name, episode_name, row["url_torrent"][0])
+                        td = TorrentDownloader(episode.filename)
+                        print "Download %s %s %s %s %s" % (show.name, episode_name, row["url_torrent"][0], episode.filename, episode.torrent)
 
     def check_args(self, options, args):
         # Solo un comando activo
