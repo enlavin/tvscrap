@@ -72,6 +72,35 @@ class TVScrap(object):
 
     def download_torrents(self):
         print "download_torrents()"
+        sc = Scrapper()
+        today = sc()
+        shows = self.store.find(Show).order_by(Show.name)
+        rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
+        for row in today:
+            for show in shows:
+                if show.match(row["name"]):
+                    # Prueba a descargar el fichero
+                    if (show.max_size == 0.0 or row["size"] <= show.max_size) and \
+                            (show.min_size == 0.0 or row["size"] >= show.min_size):
+                        episode_name = rx_episode.findall(row["name"])[0]
+                        try:
+                            episode = self.store.get(Episode, Show.id == Episode.show_id, Episode.name == episode_name)
+                        except:
+                            episode = Episode()
+                            episode.name = episode_name
+                            episode.filename = "%s.%s.avi" % (show.name, episode_name)
+                            episode.torrent = "%s.%s.torrent" % (show.name, episode_name)
+                            episode.size = row["size"]
+                            episode.show = show
+                            episode.queued = False
+                            episode.downloaded = False
+                            self.store.add(episode)
+                            self.store.commit()
+
+                        if episode.queued or episode.downloaded:
+                            break
+
+                        print "Download %s %s %s" % (show.name, episode_name, row["url_torrent"][0])
 
     def check_args(self, options, args):
         # Solo un comando activo

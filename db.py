@@ -1,3 +1,4 @@
+import re
 from storm.locals import *
 import config
 
@@ -11,6 +12,10 @@ class Show(object):
 
     def __unicode__(self):
         return self.name
+
+    def match(self, s):
+        rx = re.compile(self.regexp_filter)
+        return rx.match(s)
 
 class Episode(object):
     __storm_table__ = 'episodes'
