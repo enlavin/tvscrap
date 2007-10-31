@@ -5,7 +5,7 @@ import sys
 from optparse import OptionParser
 from storm.locals import *
 from eztvefnet import Scrapper
-from mldonkey import TorrentDownloader
+from mldonkey import TorrentManager
 from db import Show, Episode, Config, connect_db
 from config import *
 
@@ -26,12 +26,14 @@ class TVScrap(object):
         parser = OptionParser()
         parser.add_option("-l","--list-shows", dest="listshows", action="store_true", help="show list of registered shows")
         parser.add_option("-e","--list-episodes", dest="listepisodes", help="show list of downloaded episodes", metavar="SHOW")
+        parser.add_option("-f","--delete-show", dest="deleteshow", help="delete show", metavar="SHOW")
+        parser.add_option("-d","--delete-episode", dest="deleteepisode", help="delete episode", metavar="SHOW,EPISODE")
         parser.add_option("-r","--register-show", dest="show", help="show name", metavar="SHOW")
         parser.add_option("-x","--regexp", dest="regexp", help="regular expression", metavar="RX")
         parser.add_option("-g","--get", dest="getvar", help="", metavar="VARIABLE")
         parser.add_option("-s","--set", dest="setvar", help="", metavar="VARIABLE")
         parser.add_option("-v","--value", dest="value", help="", metavar="VALUE")
-        parser.add_option("-d","--dump-config", dest="dump", action="store_true", help="", metavar="DUMP")
+        parser.add_option("-u","--dump-config", dest="dump", action="store_true", help="", metavar="DUMP")
         parser.add_option("-m","--min-size", dest="minsize", type="float", help="min size in Mb", metavar="MINSIZE")
         parser.add_option("-n","--max-size", dest="maxsize", type="float", help="max size in Mb", metavar="MAXSIZE")
         return parser
@@ -53,7 +55,11 @@ class TVScrap(object):
             maxsize = 0.0
 
         try:
+            show = self.store.get(Show, Show.name == unicode(showname))
+        except:
             show = Show()
+
+        try:
             show.name = unicode(showname)
             show.regexp_filter = unicode(regexp)
             show.min_size = minsize
@@ -85,10 +91,11 @@ class TVScrap(object):
                     # Prueba a descargar el fichero
                     if (show.max_size == 0.0 or row["size"] <= show.max_size) and \
                             (show.min_size == 0.0 or row["size"] >= show.min_size):
+                        #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
+
                         episode_name = rx_episode.findall(row["name"])[0]
-                        try:
-                            episode = self.store.get(Episode, Show.id == Episode.show_id, Episode.name == episode_name)
-                        except:
+                        episode = self.store.find(Episode, Show.id == Episode.show_id, Episode.name == episode_name).one()
+                        if not episode:
                             episode = Episode()
                             episode.name = episode_name
                             nospaces_name =  re.sub("\s+", ".", show.name.lstrip().rstrip())
@@ -99,17 +106,46 @@ class TVScrap(object):
                             episode.queued = False
                             episode.downloaded = False
                             self.store.add(episode)
+                            self.store.flush()
                             self.store.commit()
 
                         if episode.queued or episode.downloaded:
+                            print "Episodio %s:%s ya encolado o descargado" % (show.name, episode.name)
                             break
 
-                        td = TorrentDownloader(episode.filename)
-                        print "Download %s %s %s %s %s" % (show.name, episode_name, row["url_torrent"][0], episode.filename, episode.torrent)
+                        td = TorrentManager(row["url_torrent"][0], episode.torrent)
+                        if td():
+                            episode.queued = True
+                            self.store.commit()
+
+                        print "Download %s %s %s %s %s" % (show.name, episode_name, episode.torrent, row["url_torrent"][0], episode.filename)
+
+    def delete_show(self, showname):
+        try:
+            show = self.store.get(Show, Show.name = unicode(showname))
+            episodes = self.store.find(Episode, Episode.show_id == show.id)
+
+            episodes.remove()
+            self.store.remove(show)
+        except:
+            print "No se encuentra el programa %s" % showname
+
+    def delete_episode(self, showname, episodename):
+        try:
+            episode = self.store.find(Episode, 
+                Episode.name == unicode(episodename), 
+                Show.name == unicode(showname), 
+                Episode.show_id == Show.id).one()
+            if episode:
+                self.store.remove(episode)
+        except:
+            print "No se encuentra el %s:%s" % (showname, episodename)
+
+
 
     def check_args(self, options, args):
         # Solo un comando activo
-        commands = ['listshows','listepisodes','show','getvar','setvar','dump']
+        commands = ['listshows','listepisodes','show','getvar','setvar','dump','deleteshow','deleteepisode']
         for c in commands:
             if not getattr(options, c):
                 continue
@@ -146,6 +182,11 @@ class TVScrap(object):
             self.setvar(options.setvar, options.value)
         elif options.dump:
             self.dump_config()
+        elif options.deleteshow:
+            self.delete_show(options.deleteshow)
+        elif options.deleteepisode:
+            showname,episodename = [unicode(s.lstrip().rstrip()) for s in options.deleteepisode.split(",")]
+            self.delete_episode(showname, episodename)
         else:
             self.download_torrents()
 
