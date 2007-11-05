@@ -5,7 +5,7 @@ import sys
 from optparse import OptionParser
 from storm.locals import *
 from eztvefnet import Scrapper
-from mldonkey import TorrentManager
+from torrents import TorrentManager
 from db import Show, Episode, Config, connect_db
 from config import *
 
@@ -41,7 +41,7 @@ class TVScrap(object):
     def list_shows(self):
         shows = self.store.find(Show).order_by(Show.name)
         for s in shows:
-            print s.name
+            print "'%s' '%s' (min: %3.1f Mb, max: %3.1f Mb)" % (s.name, s.regexp_filter, s.min_size, s.max_size)
 
     def list_episodes(self, showname):
         print "list_episodes(%s)" % showname
@@ -55,7 +55,9 @@ class TVScrap(object):
             maxsize = 0.0
 
         try:
-            show = self.store.get(Show, Show.name == unicode(showname))
+            show = self.store.find(Show, Show.name == unicode(showname)).one()
+            if not show:
+                show = Show()
         except:
             show = Show()
 
@@ -89,12 +91,11 @@ class TVScrap(object):
             for show in shows:
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if (show.max_size == 0.0 or row["size"] <= show.max_size) and \
-                            (show.min_size == 0.0 or row["size"] >= show.min_size):
+                    if show.check_size(row["size"]):
                         #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
 
                         episode_name = rx_episode.findall(row["name"])[0]
-                        episode = self.store.find(Episode, Show.id == Episode.show_id, Episode.name == episode_name).one()
+                        episode = show.episodes.find(Episode.name == episode_name).one()
                         if not episode:
                             episode = Episode()
                             episode.name = episode_name
@@ -122,7 +123,7 @@ class TVScrap(object):
 
     def delete_show(self, showname):
         try:
-            show = self.store.get(Show, Show.name = unicode(showname))
+            show = self.store.get(Show, Show.name == unicode(showname))
             episodes = self.store.find(Episode, Episode.show_id == show.id)
 
             episodes.remove()
@@ -132,9 +133,9 @@ class TVScrap(object):
 
     def delete_episode(self, showname, episodename):
         try:
-            episode = self.store.find(Episode, 
-                Episode.name == unicode(episodename), 
-                Show.name == unicode(showname), 
+            episode = self.store.find(Episode,
+                Episode.name == unicode(episodename),
+                Show.name == unicode(showname),
                 Episode.show_id == Show.id).one()
             if episode:
                 self.store.remove(episode)
