@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import re
 import sys
@@ -91,7 +92,9 @@ class TVScrap(object):
             for show in shows:
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if show.check_size(row["size"]):
+                    if not show.check_size(row["size"]):
+                        print u"%s: incorrecto (%3.1f Mb)" % (row["name"], row["size"])
+                    else:
                         #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
 
                         episode_name = rx_episode.findall(row["name"])[0]
@@ -123,11 +126,13 @@ class TVScrap(object):
 
     def delete_show(self, showname):
         try:
-            show = self.store.get(Show, Show.name == unicode(showname))
+            import pdb; pdb.set_trace()
+            show = self.store.find(Show, Show.name == unicode(showname)).one()
             episodes = self.store.find(Episode, Episode.show_id == show.id)
 
             episodes.remove()
             self.store.remove(show)
+            self.store.commit()
         except:
             print "No se encuentra el programa %s" % showname
 
@@ -139,6 +144,7 @@ class TVScrap(object):
                 Episode.show_id == Show.id).one()
             if episode:
                 self.store.remove(episode)
+                self.store.commit()
         except:
             print "No se encuentra el %s:%s" % (showname, episodename)
 
