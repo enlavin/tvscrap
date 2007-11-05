@@ -17,6 +17,11 @@ class Show(object):
         rx = re.compile(self.regexp_filter)
         return rx.match(s)
 
+    def check_size(self, size):
+        return (self.max_size == 0.0 or size <= self.max_size) and \
+                (self.min_size == 0.0 or size >= self.min_size)
+
+
 class Episode(object):
     __storm_table__ = 'episodes'
     id = Int(primary=True)
@@ -31,6 +36,8 @@ class Episode(object):
 
     def __unicode__(self):
         return self.name
+
+Show.episodes = ReferenceSet(Show.id, Episode.show_id)
 
 class Config(object):
     __storm_table__ = 'config'
