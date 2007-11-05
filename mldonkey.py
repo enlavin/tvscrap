@@ -21,15 +21,15 @@ class TorrentManager(object):
         print self.full_filename
         if sys.platform <> 'win32':
             # external helper
-            r = os.system("mldonkey_link.sh \"%s\"" % self.full_filename)            
+            r = os.system("mldonkey_link.sh \"%s\"" % self.full_filename)
             return r == 0
         else:
             # default windows torrent handler
-            #import win32api
-            #try:
-            #    win32api.ShellExecute(0, "open", self.full_filename, "", config.TORRENT_DIR, 0) 
-            #    return True
-            #except:
-            #   return False
+            import win32api
+            try:
+                win32api.ShellExecute(0, "open", self.full_filename, "", config.TORRENT_DIR, 0)
+                return True
+            except:
+               return False
             return True
 
