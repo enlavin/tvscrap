@@ -84,8 +84,13 @@ class TVScrap(object):
 
     def download_torrents(self):
         print "download_torrents()"
+
         sc = Scrapper()
-        today = sc()
+        for i in range(3):
+            today = sc()
+            if today:
+                break
+
         shows = self.store.find(Show).order_by(Show.name)
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
         for row in today:
