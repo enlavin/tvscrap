@@ -1,12 +1,11 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
 
 import re
 import sys
 from optparse import OptionParser
 from storm.locals import *
 from eztvefnet import Scrapper
-from torrents import TorrentManager
+from mldonkey import TorrentManager
 from db import Show, Episode, Config, connect_db
 from config import *
 
@@ -27,7 +26,7 @@ class TVScrap(object):
         parser = OptionParser()
         parser.add_option("-l","--list-shows", dest="listshows", action="store_true", help="show list of registered shows")
         parser.add_option("-e","--list-episodes", dest="listepisodes", help="show list of downloaded episodes", metavar="SHOW")
-        parser.add_option("-f","--delete-show", dest="deleteshow", help="delete show", metavar="SHOW")
+        parser.add_option("-p","--delete-show", dest="deleteshow", help="delete show", metavar="SHOW")
         parser.add_option("-d","--delete-episode", dest="deleteepisode", help="delete episode", metavar="SHOW,EPISODE")
         parser.add_option("-r","--register-show", dest="show", help="show name", metavar="SHOW")
         parser.add_option("-x","--regexp", dest="regexp", help="regular expression", metavar="RX")
@@ -42,7 +41,7 @@ class TVScrap(object):
     def list_shows(self):
         shows = self.store.find(Show).order_by(Show.name)
         for s in shows:
-            print "'%s' '%s' (min: %3.1f Mb, max: %3.1f Mb)" % (s.name, s.regexp_filter, s.min_size, s.max_size)
+            print s.name
 
     def list_episodes(self, showname):
         print "list_episodes(%s)" % showname
@@ -56,9 +55,7 @@ class TVScrap(object):
             maxsize = 0.0
 
         try:
-            show = self.store.find(Show, Show.name == unicode(showname)).one()
-            if not show:
-                show = Show()
+            show = self.store.get(Show, Show.name == unicode(showname))
         except:
             show = Show()
 
@@ -84,26 +81,20 @@ class TVScrap(object):
 
     def download_torrents(self):
         print "download_torrents()"
-
         sc = Scrapper()
-        for i in range(3):
-            today = sc()
-            if today:
-                break
-
+        today = sc()
         shows = self.store.find(Show).order_by(Show.name)
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
         for row in today:
             for show in shows:
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if not show.check_size(row["size"]):
-                        print u"%s: incorrecto (%3.1f Mb)" % (row["name"], row["size"])
-                    else:
+                    if (show.max_size == 0.0 or row["size"] <= show.max_size) and \
+                            (show.min_size == 0.0 or row["size"] >= show.min_size):
                         #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
 
                         episode_name = rx_episode.findall(row["name"])[0]
-                        episode = show.episodes.find(Episode.name == episode_name).one()
+                        episode = self.store.find(Episode, Show.id == Episode.show_id, Episode.name == episode_name).one()
                         if not episode:
                             episode = Episode()
                             episode.name = episode_name
@@ -131,27 +122,28 @@ class TVScrap(object):
 
     def delete_show(self, showname):
         try:
-            import pdb; pdb.set_trace()
-            show = self.store.find(Show, Show.name == unicode(showname)).one()
+            show = self.store.get(Show, Show.name == unicode(showname))
             episodes = self.store.find(Episode, Episode.show_id == show.id)
 
             episodes.remove()
             self.store.remove(show)
-            self.store.commit()
         except:
             print "No se encuentra el programa %s" % showname
 
     def delete_episode(self, showname, episodename):
-        try:
-            episode = self.store.find(Episode,
-                Episode.name == unicode(episodename),
-                Show.name == unicode(showname),
-                Episode.show_id == Show.id).one()
-            if episode:
-                self.store.remove(episode)
-                self.store.commit()
-        except:
-            print "No se encuentra el %s:%s" % (showname, episodename)
+        print "delete_episode(%s,%s)" % (showname, episodename)
+
+        if True:
+        #try:
+            rs = self.store.find(Episode, 
+                Episode.name == unicode(episodename), 
+                Show.name == unicode(showname), 
+                Episode.show_id == Show.id)
+
+            if rs.one():
+                rs.remove()
+        #except:
+        #    print "No se encuentra el %s:%s" % (showname, episodename)
 
 
 
