@@ -93,6 +93,7 @@ class TVScrap(object):
 
         shows = self.store.find(Show).order_by(Show.name)
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
+        rx_episode_alt = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
         for row in today:
             for show in shows:
                 if show.match(row["name"]):
@@ -102,7 +103,11 @@ class TVScrap(object):
                     else:
                         #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
 
-                        episode_name = rx_episode.findall(row["name"])[0]
+                        try:
+                            episode_name = rx_episode.findall(row["name"])[0]
+                        except:
+                            episode_name = rx_episode_alt.findall(row["name"])[0]
+
                         episode = show.episodes.find(Episode.name == episode_name).one()
                         if not episode:
                             episode = Episode()
@@ -122,7 +127,7 @@ class TVScrap(object):
                             print "Episodio %s:%s ya encolado o descargado" % (show.name, episode.name)
                             break
 
-                        td = TorrentManager(row["url_torrent"][0], episode.torrent)
+                        td = TorrentManager(row["url_torrent"][2], episode.torrent)
                         if td():
                             episode.queued = True
                             self.store.commit()
