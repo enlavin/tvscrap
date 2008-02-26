@@ -85,16 +85,22 @@ class TVScrap(object):
         today = sc()
         shows = self.store.find(Show).order_by(Show.name)
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
+        rx_episode_alt = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
         for row in today:
             for show in shows:
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if (show.max_size == 0.0 or row["size"] <= show.max_size) and \
-                            (show.min_size == 0.0 or row["size"] >= show.min_size):
+                    if not show.check_size(row["size"]):
+                        print u"%s: incorrecto (%3.1f Mb)" % (row["name"], row["size"])
+                    else:
                         #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
 
-                        episode_name = rx_episode.findall(row["name"])[0]
-                        episode = self.store.find(Episode, Show.id == Episode.show_id, Episode.name == episode_name).one()
+                        try:
+                            episode_name = rx_episode.findall(row["name"])[0]
+                        except:
+                            episode_name = rx_episode_alt.findall(row["name"])[0]
+
+                        episode = show.episodes.find(Episode.name == episode_name).one()
                         if not episode:
                             episode = Episode()
                             episode.name = episode_name
@@ -113,7 +119,7 @@ class TVScrap(object):
                             print "Episodio %s:%s ya encolado o descargado" % (show.name, episode.name)
                             break
 
-                        td = TorrentManager(row["url_torrent"][0], episode.torrent)
+                        td = TorrentManager(row["url_torrent"][2], episode.torrent)
                         if td():
                             episode.queued = True
                             self.store.commit()
@@ -127,23 +133,21 @@ class TVScrap(object):
 
             episodes.remove()
             self.store.remove(show)
+            self.store.commit()
         except:
             print "No se encuentra el programa %s" % showname
 
     def delete_episode(self, showname, episodename):
-        print "delete_episode(%s,%s)" % (showname, episodename)
-
-        if True:
-        #try:
-            rs = self.store.find(Episode, 
-                Episode.name == unicode(episodename), 
-                Show.name == unicode(showname), 
-                Episode.show_id == Show.id)
-
-            if rs.one():
-                rs.remove()
-        #except:
-        #    print "No se encuentra el %s:%s" % (showname, episodename)
+        try:
+            episode = self.store.find(Episode,
+                Episode.name == unicode(episodename),
+                Show.name == unicode(showname),
+                Episode.show_id == Show.id).one()
+            if episode:
+                self.store.remove(episode)
+                self.store.commit()
+        except:
+            print "No se encuentra el %s:%s" % (showname, episodename)
 
 
 
