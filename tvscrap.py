@@ -18,7 +18,7 @@ from config import *
 # + tvscrap.py --list-shows
 # + tvscrap.py --list-episodes SHOW
 # + tvscrap.py -u http://www.eztv.it/index.php?main=show&id=575
-# + tvscrap.py -f http://www.eztv.it/index.php?main=show&id=575
+# + tvscrap.py -f fulanico.html
 
 class TVScrap(object):
     def __init__(self):
