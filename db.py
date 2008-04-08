@@ -52,7 +52,11 @@ import sys
 import os
 
 def config_program_folder():
-    homedir = os.environ.get("HOME")
+    if sys.platform == 'win32':
+        homedir = "%s%s" % (os.environ.get["HOMEDRIVE"], os.environ.get["HOMEPATH"])
+    else:
+        homedir = os.environ.get("HOME")
+
     if not homedir:
         configdir = '.'
     else:
