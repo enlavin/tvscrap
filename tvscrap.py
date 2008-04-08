@@ -95,14 +95,14 @@ class TVScrap(object):
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
         rx_episode_alt = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
         for row in today:
-            for show in shows:
+            # Importante: si no pongo list() el cursor queda abierto y se queja de que hay 2 consultas SQL activas
+            for show in list(shows):
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
                     if not show.check_size(row["size"]):
                         print u"%s: incorrecto (%3.1f Mb)" % (row["name"], row["size"])
                     else:
                         #import rpdb2; rpdb2.start_embedded_debugger('a', fAllowRemote=True, fAllowUnencrypted=True)
-
                         try:
                             episode_name = rx_episode.findall(row["name"])[0]
                         except:
