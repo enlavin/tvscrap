@@ -93,6 +93,8 @@ class TVScrap(object):
         try:
             sc = Scrapper()
             today = sc(url=self.url, file=self.file)
+            if today:
+                break
         except:
             print "Can't reach html. Exiting"
             return
