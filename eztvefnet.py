@@ -1,12 +1,14 @@
 import re
 import urllib
 from BeautifulSoup import BeautifulSoup
+import func
 
 class Scrapper(object):
     def __call__(self, url=None, file=None):
         self.url = url
         self.file = file
         return self._parse_frontpage()
+    __call__ = func.retry_n(__call__, 3)
 
     def _parse_episode(self, tr):
         data = {}

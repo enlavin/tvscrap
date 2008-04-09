@@ -89,10 +89,13 @@ class TVScrap(object):
     def download_torrents(self):
         print "download_torrents()"
 
-        sc = Scrapper()
+
+        try:
+            sc = Scrapper()
             today = sc(url=self.url, file=self.file)
-            if today:
-                break
+        except:
+            print "Can't reach html. Exiting"
+            return
 
         shows = self.store.find(Show).order_by(Show.name)
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')

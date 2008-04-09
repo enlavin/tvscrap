@@ -2,6 +2,8 @@ import re
 from storm.locals import *
 import config
 
+class TVConfigError(Exception): pass
+
 class Show(object):
     __storm_table__ = 'shows'
     id = Int(primary=True)
@@ -53,7 +55,7 @@ import os
 
 def config_program_folder():
     if sys.platform == 'win32':
-        homedir = "%s%s" % (os.environ.get["HOMEDRIVE"], os.environ.get["HOMEPATH"])
+        homedir = "%s%s" % (os.environ.get("HOMEDRIVE"), os.environ.get("HOMEPATH"))
     else:
         homedir = os.environ.get("HOME")
 
