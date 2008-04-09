@@ -49,17 +49,30 @@ class Config(object):
         return self.varname
 
 import sys
-import os.path
-def get_program_folder():
-    pass
+import os
+
+def config_program_folder():
+    if sys.platform == 'win32':
+        homedir = "%s%s" % (os.environ.get["HOMEDRIVE"], os.environ.get["HOMEPATH"])
+    else:
+        homedir = os.environ.get("HOME")
+
+    if not homedir:
+        configdir = '.'
+    else:
+        configdir = os.path.join(homedir, ".tvscrap")
+
+    if not os.path.exists(configdir):
+        os.mkdir(configdir)
+    else:
+        if not os.path.isdir(configdir):
+            raise TVConfigError()
+
+    return configdir
 
 def get_db_filename():
-    return "tvscrap.db" # FIXME!
-    try:
-        if len(config.DB) > 0 and config.DB[0] == '/':
-            pass
-    except AttributeError:
-        return os.path.join(get_program_folder(), "tvscrap.db")
+    homedir = config_program_folder()
+    return os.path.join(homedir, "tvscrap.db")
 
 def connect_db():
     dsn = "sqlite:%s" % get_db_filename()

@@ -16,24 +16,29 @@ from config import *
 # + tvscrap.py --dump-config
 # + tvscrap.py --list-shows
 # + tvscrap.py --list-episodes SHOW
+# + tvscrap.py -u http://www.eztv.it/index.php?main=show&id=575
+# + tvscrap.py -f fulanico.html
 
 class TVScrap(object):
     def __init__(self):
         self.db = connect_db()
         self.store = Store(self.db)
+        self.url = None
 
     def define_cmdline_options(self):
         parser = OptionParser()
         parser.add_option("-l","--list-shows", dest="listshows", action="store_true", help="show list of registered shows")
         parser.add_option("-e","--list-episodes", dest="listepisodes", help="show list of downloaded episodes", metavar="SHOW")
-        parser.add_option("-p","--delete-show", dest="deleteshow", help="delete show", metavar="SHOW")
+        parser.add_option("-c","--delete-show", dest="deleteshow", help="delete show", metavar="SHOW")
         parser.add_option("-d","--delete-episode", dest="deleteepisode", help="delete episode", metavar="SHOW,EPISODE")
         parser.add_option("-r","--register-show", dest="show", help="show name", metavar="SHOW")
         parser.add_option("-x","--regexp", dest="regexp", help="regular expression", metavar="RX")
         parser.add_option("-g","--get", dest="getvar", help="", metavar="VARIABLE")
         parser.add_option("-s","--set", dest="setvar", help="", metavar="VARIABLE")
         parser.add_option("-v","--value", dest="value", help="", metavar="VALUE")
-        parser.add_option("-u","--dump-config", dest="dump", action="store_true", help="", metavar="DUMP")
+        parser.add_option("-z","--dump-config", dest="dump", action="store_true", help="", metavar="DUMP")
+        parser.add_option("-u","--force-url", dest="url", help="", metavar="URL")
+        parser.add_option("-f","--force-file", dest="file", help="", metavar="FILE")
         parser.add_option("-m","--min-size", dest="minsize", type="float", help="min size in Mb", metavar="MINSIZE")
         parser.add_option("-n","--max-size", dest="maxsize", type="float", help="max size in Mb", metavar="MAXSIZE")
         return parser
@@ -41,7 +46,7 @@ class TVScrap(object):
     def list_shows(self):
         shows = self.store.find(Show).order_by(Show.name)
         for s in shows:
-            print s.name
+            print "'%s' '%s' (min: %3.1f Mb, max: %3.1f Mb)" % (s.name, s.regexp_filter, s.min_size, s.max_size)
 
     def list_episodes(self, showname):
         print "list_episodes(%s)" % showname
@@ -55,7 +60,9 @@ class TVScrap(object):
             maxsize = 0.0
 
         try:
-            show = self.store.get(Show, Show.name == unicode(showname))
+            show = self.store.find(Show, Show.name == unicode(showname)).one()
+            if not show:
+                show = Show()
         except:
             show = Show()
 
@@ -81,13 +88,18 @@ class TVScrap(object):
 
     def download_torrents(self):
         print "download_torrents()"
+
         sc = Scrapper()
-        today = sc()
+            today = sc(url=self.url, file=self.file)
+            if today:
+                break
+
         shows = self.store.find(Show).order_by(Show.name)
         rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
         rx_episode_alt = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
         for row in today:
-            for show in shows:
+            # Importante: si no pongo list() el cursor queda abierto y se queja de que hay 2 consultas SQL activas
+            for show in list(shows):
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
                     if not show.check_size(row["size"]):
@@ -128,7 +140,8 @@ class TVScrap(object):
 
     def delete_show(self, showname):
         try:
-            show = self.store.get(Show, Show.name == unicode(showname))
+            import pdb; pdb.set_trace()
+            show = self.store.find(Show, Show.name == unicode(showname)).one()
             episodes = self.store.find(Episode, Episode.show_id == show.id)
 
             episodes.remove()
@@ -153,7 +166,7 @@ class TVScrap(object):
 
     def check_args(self, options, args):
         # Solo un comando activo
-        commands = ['listshows','listepisodes','show','getvar','setvar','dump','deleteshow','deleteepisode']
+        commands = ['listshows','listepisodes','show','getvar','setvar','dump','deleteshow','deleteepisode', 'url', 'file']
         for c in commands:
             if not getattr(options, c):
                 continue
@@ -168,6 +181,8 @@ class TVScrap(object):
             check_args = False
         if (options.minsize or options.maxsize) and not options.show:
             check_args = False
+        if options.file and options.url:
+            check_args = False
         return check_args
 
     def run(self):
@@ -177,6 +192,9 @@ class TVScrap(object):
         if not self.check_args(options, args):
             parser.print_help()
             exit(1)
+
+        self.url = options.url
+        self.file = options.file
 
         if options.listshows:
             self.list_shows()

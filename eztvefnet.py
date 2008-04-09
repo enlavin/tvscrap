@@ -3,7 +3,9 @@ import urllib
 from BeautifulSoup import BeautifulSoup
 
 class Scrapper(object):
-    def __call__(self):
+    def __call__(self, url=None, file=None):
+        self.url = url
+        self.file = file
         return self._parse_frontpage()
 
     def _parse_episode(self, tr):
@@ -19,11 +21,17 @@ class Scrapper(object):
         return data
 
     def _parse_frontpage(self):
-        #url = urllib.urlopen("http://eztvefnet.org/frontpage.php")
-        #url = urllib.urlopen("http://eztv.nl/frontpage.php")
-        url = urllib.urlopen("http://eztv.it/frontpage.php")
-        html = url.read()
-        #html = file("frontpage-wed.php.html","rt").read()
+        if self.file:
+            try:
+                f = file(self.file, "rt")
+                html = f.read()
+            finally:
+                f.close()
+        else:
+            if not self.url:
+                self.url = "http://eztv.it/frontpage.php"
+            url = urllib.urlopen(self.url)
+            html = url.read()
         soup = BeautifulSoup(html)
         capitulos = soup.findAll('tr', attrs={'class': 'forum_header_border'})
 
