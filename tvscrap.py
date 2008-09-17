@@ -188,7 +188,7 @@ class TVScrap(object):
                         if not episode:
                             break
 
-                        torrentdl = TorrentManager(row["url_torrent"][3],
+                        torrentdl = TorrentManager(row["url_torrent"][0],
                                 episode.torrent)
                         if torrentdl():
                             episode.queued = True
