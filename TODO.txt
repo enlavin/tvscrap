@@ -1,3 +1,5 @@
 +* pasar la configuracion a $HOME/.tvscrap, tanto en linux como en win32
 +* soporte a descarga de bittorrents en win32 usando start
 +* forzar urls y ficheros
+* comprobar que la web de torrents devuelve un torrent y no un html
+* si falla uno de los links de torrent reintentar con las alternativas
