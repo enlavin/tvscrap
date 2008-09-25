@@ -8,7 +8,7 @@ import re
 from optparse import OptionParser
 import storm.locals as st
 from eztvefnet import Scrapper
-from mldonkey import TorrentManager
+from torrents import TorrentManager
 from db import Show, Episode, connect_db
 
 class TVScrap(object):
