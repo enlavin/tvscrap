@@ -4,9 +4,8 @@
 # tvscrap episodes <show>
 # tvscrap delete <show> <episode>
 # tvscrap eztv [-f file|-u url]
-class Command(object):
-    
-    def run(self):
-        pass
+class BaseCommand(object):
+    def run(self, options):
+        raise NotImplementedError #pass
 
 
