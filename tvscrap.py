@@ -268,6 +268,7 @@ class TVScrap(object):
         self.url = options.url
         self.file = options.file
 
+        # TODO: refactorizar con clases comando
         if options.listshows:
             self.list_shows()
         elif options.listepisodes:
