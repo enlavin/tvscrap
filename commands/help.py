@@ -1,7 +1,11 @@
 import sys
 from base import BaseCommand
+from optparse import OptionParser
 
 class Command(BaseCommand):
+    def create_parser(self):
+        return OptionParser()
+
     def run(self, options):
         print """
 tvscrap help
