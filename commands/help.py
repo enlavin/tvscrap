@@ -4,9 +4,10 @@ from optparse import OptionParser
 
 class Command(BaseCommand):
     def create_parser(self):
-        return OptionParser()
+        return OptionParser(usage="help")
 
     def check_args(self, args):
+        (options, _) = self.parser.parse_args(args)
         return True
 
     def run(self):
