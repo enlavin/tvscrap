@@ -11,7 +11,7 @@ class Command(BaseCommand):
         
         parser.set_defaults(minsize=0, maxsize=0)
 
-        parser.add_option("-r", "--register-show", dest="show",
+        parser.add_option("-s", "--show", dest="show",
                 help="show name", metavar="SHOW")
         parser.add_option("-x", "--regexp", dest="regexp",
                 help="regular expression", metavar="RX")
