@@ -18,14 +18,11 @@ class Command(BaseCommand):
         return getattr(self.options, "show")
         
     def run(self):
-        showname = self.options.show
-        print "list_episodes(%s)" % showname
+        print "list_episodes(%s)" % self.options.show
         for epi in self.store.find(Episode,
                 Episode.show_id == Show.id,
-                Show.name == unicode(showname)
+                Show.name == unicode(self.options.show)
                 ).order_by(Show.name):
             print "%s|%s|%s|%3.1f" % \
                     (epi.name, epi.filename, epi.torrent, epi.size)
-
-
 

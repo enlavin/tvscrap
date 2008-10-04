@@ -28,7 +28,22 @@ class Command(BaseCommand):
         minmax_ok = getattr(options, 'minsize') <= getattr(options, 'maxsize')
         return args_present and minmax_ok
         
-
     def run(self):
-        pass
+        if not self.options.minsize:
+            minsize = 0.0
+        if not self.options.maxsize:
+            maxsize = 0.0
+
+        show = self.store.find(Show, Show.name == unicode(self.options.show)).one()
+        if not show:
+            show = Show()
+
+        show.name = unicode(self.options.show)
+        show.regexp_filter = unicode(self.options.regexp)
+        show.min_size = self.options.minsize
+        show.max_size = self.options.maxsize
+        self.store.add(show)
+        self.store.commit()
+        print "%s registrado con exito" % showname
+
 
