@@ -6,7 +6,10 @@ class Command(BaseCommand):
     def create_parser(self):
         return OptionParser()
 
-    def run(self, options):
+    def check_args(self, args):
+        return True
+
+    def run(self):
         print """
 tvscrap help
     Show this help
@@ -21,4 +24,3 @@ tvscrap delete <show> <episode>
 tvscrap eztv [-f file|-u url]
     Enqueue torrents from eztv
         """
-        sys.exit(1)
