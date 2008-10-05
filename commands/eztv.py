@@ -70,7 +70,7 @@ class Command(BaseCommand):
             return
 
     def run(self, options):
-        print "download_torrents()"
+        print "save_torrents()"
 
         try:
             scrapper = Scrapper()
@@ -106,5 +106,4 @@ class Command(BaseCommand):
                                 (show.name, episode.name,
                                  episode.torrent, episode.url,
                                  episode.filename)
-
 
