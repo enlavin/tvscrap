@@ -27,20 +27,25 @@ class Command(BaseCommand):
         (self.options, _) = self.parser.parse_args(args)
         return (getattr(self.options, "url") and not getattr(options, "file")) or \
            (getattr(self.options, "file") and not getattr(options, "url")) or \
-           (not getattr(self.options, "file") and not getattr(options, "url")) 
+           (not getattr(self.options, "file") and not getattr(options, "url"))
 
-        
-    def _download_new_episode(self, show, row):
+
+    def _save_new_episode(self, show, row):
         """
-        Descarga un nuevo episodio
+        Encola en BD un nuevo episodio
         """
         try:
+            # SxxEyy numbering scheme
             episode_name = self.rx_episode.findall(row["name"])[0]
         except IndexError:
             try:
+                # SxEE numbering scheme
                 episode_name = self.rx_episode_alt.findall(row["name"])[0]
+                # Normalizes episode numbering to SxxEyy
+                episode_name_parts = episode_name.split("x")
+                episode_name = "S%02dE%02d" % (int(n) for n in episode_name_parts[:2])
             except IndexError:
-                print "No puedo averiguar el numero del capitulo"
+                print "Can't find episode number. Aborting."
                 return
 
         episode = show.episodes.find(Episode.name == episode_name).one()
@@ -54,16 +59,15 @@ class Command(BaseCommand):
             episode.show = show
             episode.queued = False
             episode.downloaded = False
+            episode.url = "\n".join(row["url_torrent"])
             self.store.add(episode)
             self.store.flush()
             self.store.commit()
-
-        if episode.queued or episode.downloaded:
-            print "Episodio %s:%s ya encolado o descargado" % \
+            return episode
+        elif episode.queued or episode.downloaded:
+            print "Episodio %s:%s already queued or downloaded" % \
                     (show.name, episode.name)
             return
-
-        return episode
 
     def run(self, options):
         print "download_torrents()"
@@ -88,7 +92,7 @@ class Command(BaseCommand):
                         print u"%s: incorrecto (%3.1f Mb)" % \
                                 (row["name"], row["size"])
                     else:
-                        episode = self._download_new_episode(show, row)
+                        episode = self._save_new_episode(show, row)
                         if not episode:
                             break
 
@@ -100,7 +104,7 @@ class Command(BaseCommand):
                         #
                         print "Queued %s %s %s %s %s" % \
                                 (show.name, episode.name,
-                                 episode.torrent, row["url_torrent"][0],
+                                 episode.torrent, episode.url,
                                  episode.filename)
 
 

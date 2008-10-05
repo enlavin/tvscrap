@@ -255,12 +255,12 @@ class TVScrap(object):
             check_args = False
         return check_args
 
-    def run(self):
+    def run(self, new=True):
         """
         Ejecuta el scrapper
         """
 
-        if False:
+        if new:
             if len(sys.argv) == 1:
                 self.run_command('help')
                 sys.exit(1)
@@ -327,7 +327,7 @@ def main():
     Lanza el programa
     """
     tvs = TVScrap()
-    tvs.run()
+    tvs.run(new=False)
 
 if __name__ == '__main__':
     main()
