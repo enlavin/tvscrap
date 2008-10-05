@@ -260,11 +260,12 @@ class TVScrap(object):
         Ejecuta el scrapper
         """
 
-        if len(sys.argv) == 1:
-            self.run_command('help')
-            sys.exit(1)
-        ret = self.run_command()
-        return ret
+        if False:
+            if len(sys.argv) == 1:
+                self.run_command('help')
+                sys.exit(1)
+            ret = self.run_command()
+            return ret
 
         #######
         parser = self.define_cmdline_options()
@@ -320,7 +321,7 @@ class TVScrap(object):
         except AttributeError:
             self.run_command('help')
             sys.exit(1)
-    
+
 def main():
     """
     Lanza el programa
