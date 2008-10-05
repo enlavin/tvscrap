@@ -59,23 +59,23 @@ class Command(BaseCommand):
     def run(self):
         episodes = self.store.find(Episode, Episode.queued == False, Episode.downloaded == False)
 
-        if len(episodes) <= 0:
+        if episodes.count() <= 0:
             print "No pending episodes in DB. Exiting."
             return
 
         for episode in episodes:
-            print u"Sending %s to mldonkey(%s:%s)" % (unicode(episode), self.options.host, self.options.port) 
+            print u"Sending %s to mldonkey(%s:%s)" % (unicode(episode), self.options.host, self.options.port)
             for url in episode.urls():
                 try:
                     self._send_command(url)
                     episode.queued = True
                     self.store.commit()
-                    print "%s OK" % unicode(episode) 
+                    print "%s OK" % unicode(episode)
                     break
                 except MLAuthException:
                     print "Wrong credentials for %s:%s" % (self.options.host, self.options.port)
                     return
                 except MLURLException:
                     print "%s failed. Trying next url." % url
-                    
+
 
