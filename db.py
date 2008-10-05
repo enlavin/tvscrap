@@ -44,7 +44,7 @@ class Episode(object):
     show_id = st.Int()
     show = st.Reference(show_id, Show.id)
     name = st.Unicode() # SxxEyy
-    url = st.Unicode() # torrent url
+    url = st.Unicode() # torrent urls
     filename = st.Unicode()
     torrent = st.Unicode()
     size = st.Float()
