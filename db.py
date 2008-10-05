@@ -51,7 +51,7 @@ class Episode(object):
     downloaded = st.Bool()
 
     def __unicode__(self):
-        return self.name
+        return u"%s, %s" % (self.show.name,self.name)
 
 Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
 
