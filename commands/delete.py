@@ -23,12 +23,21 @@ class Command(BaseCommand):
         
     def run(self):
         show = self.store.find(Show, Show.name == unicode(self.options.show)).one()
-        episodes = self.store.find(Episode, Episode.show_id == show.id)
-
-        if not show or not episodes:
+        if not show:
             print "No se encuentra el programa %s" % self.options.show
+            return
+
+        # borra un episodio
+        if self.options.episode:
+            episode = self.store.find(Episode,
+                Episode.name == unicode(episodename),
+                Show.name == unicode(showname),
+                Episode.show_id == Show.id).one()
+            self.store.remove(episode)
         else:
+            # borra el show y sus episodios
+            episodes = self.store.find(Episode, Episode.show_id == show.id)
             episodes.remove()
             self.store.remove(show)
-            self.store.commit()
+        self.store.commit()
 
