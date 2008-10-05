@@ -25,9 +25,9 @@ class Command(BaseCommand):
 
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
-        return (getattr(self.options, "url") and not getattr(options, "file")) or \
-           (getattr(self.options, "file") and not getattr(options, "url")) or \
-           (not getattr(self.options, "file") and not getattr(options, "url"))
+        return (getattr(self.options, "url") and not getattr(self.options, "file")) or \
+           (getattr(self.options, "file") and not getattr(self.options, "url")) or \
+           (not getattr(self.options, "file") and not getattr(self.options, "url"))
 
 
     def _save_new_episode(self, show, row):
@@ -64,17 +64,18 @@ class Command(BaseCommand):
             self.store.flush()
             self.store.commit()
             return episode
-        elif episode.queued or episode.downloaded:
+        #elif episode.queued or episode.downloaded:
+        else:
             print "Episodio %s:%s already queued or downloaded" % \
                     (show.name, episode.name)
-            return
+        return
 
-    def run(self, options):
+    def run(self):
         print "save_torrents()"
 
         try:
             scrapper = Scrapper()
-            today = scrapper(url=selfoptions.url, file=self.options.file)
+            today = scrapper(url=self.options.url, file=self.options.file)
             if not today:
                 raise Exception()
         except Exception:

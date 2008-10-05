@@ -1,6 +1,7 @@
 import sys
 from base import BaseCommand
 from optparse import OptionParser
+from db import Show
 
 class Command(BaseCommand):
     """Registra una nueva serie en la BD"""
@@ -24,16 +25,11 @@ class Command(BaseCommand):
 
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
-        args_present = getattr(options,'regexp') and getattr(options, 'show')
-        minmax_ok = getattr(options, 'minsize') <= getattr(options, 'maxsize')
+        args_present = getattr(self.options,'regexp') and getattr(self.options, 'show')
+        minmax_ok = getattr(self.options, 'minsize') <= getattr(self.options, 'maxsize')
         return args_present and minmax_ok
         
     def run(self):
-        if not self.options.minsize:
-            minsize = 0.0
-        if not self.options.maxsize:
-            maxsize = 0.0
-
         show = self.store.find(Show, Show.name == unicode(self.options.show)).one()
         if not show:
             show = Show()
@@ -44,6 +40,6 @@ class Command(BaseCommand):
         show.max_size = self.options.maxsize
         self.store.add(show)
         self.store.commit()
-        print "%s registrado con exito" % showname
+        print "%s registrado con exito" % self.options.show
 
 

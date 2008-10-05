@@ -54,6 +54,9 @@ class Episode(object):
     def __unicode__(self):
         return u"%s, %s" % (self.show.name,self.name)
 
+    def urls(self):
+        return self.url.split("\n")
+
 Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
 
 class Config(object):
