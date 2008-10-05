@@ -20,8 +20,10 @@ tvscrap shows
     Show list
 tvscrap episodes <show>
     Episode list for a show
-tvscrap delete <show> <episode>
+tvscrap delete -s <show> [-e <episode>]
     Delete an episode from DB
 tvscrap eztv [-f file|-u url]
-    Enqueue torrents from eztv
+    Download torrents from eztv
+tvscrap mldonkey [-h host] [-p port] [-u username] [-w password]
+    Queue torrents in mldonkey
         """
