@@ -59,7 +59,7 @@ class Command(BaseCommand):
     def run(self):
         episodes = self.store.find(Episode, Episode.queued == False, Episode.downloaded == False)
 
-        if not episodes:
+        if len(episodes) <= 0:
             print "No pending episodes in DB. Exiting."
             return
 
