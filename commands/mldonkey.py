@@ -19,7 +19,7 @@ class Command(BaseCommand):
         parser = OptionParser(usage="mldonkey")
         self.parser = parser
 
-        parser.set_defaults(host='localhost', port=4000, user="", passwd="")
+        parser.set_defaults(host='', port=0, user="", passwd="")
         parser.add_option("-m", "--host", dest="host",
                 help="hostname", metavar="HOST")
         parser.add_option("-p", "--port", dest="port", type="int",
@@ -30,37 +30,32 @@ class Command(BaseCommand):
                 help="password", metavar="PASSWORD")
         return parser
 
+    def _best_value(self, opt, config_var, default):
+        if opt:
+            return opt
+
+        tmp = self.get_config(config_var)
+        if tmp:
+            return tmp
+
+        return default
+
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
 
-        if self.options.user:
-            self.username = self.options.user
-        else:
-            self.username = self.get_config("mldonkey.username")
+        self.username = self._best_value(self.options.user, "mldonkey.username", "admin")
+        self.passwd = self._best_value(self.options.passwd, "mldonkey.password", "")
+        self.host = self._best_value(self.options.host, "mldonkey.host", "localhost")
+        self.port = self._best_value(self.options.port, "mldonkey.port", 4000)
 
-        if self.options.passwd:
-            self.passwd = self.options.passwd
-        else:
-            self.passwd = self.get_config("mldonkey.password")
-        
-        if self.options.host:
-            self.host = self.options.host
-        else:
-            self.host = self.get_config("mldonkey.host")
-        
-        if self.options.port:
-            self.port = self.options.port
-        else:
-            self.port = self.get_config("mldonkey.port")
-        
         return True
 
     def _send_command(self, torrent):
         telnet = Telnet()
-        telnet.open(self.host, self.port)
+        telnet.open(self.host, int(self.port))
         try:
             telnet.read_until(">")
-            telnet.write("auth %s %s\n" % (self.username, self.passwd))
+            telnet.write("auth %s %s\n" % (str(self.username), str(self.passwd)))
             telnet.read_until(">")
             telnet.write("dllink %s\n" % str(torrent))
             telnet.write("quit\n")
@@ -82,7 +77,7 @@ class Command(BaseCommand):
             return
 
         for episode in episodes:
-            print u"Sending %s to mldonkey(%s:%s)" % (unicode(episode), self.options.host, self.options.port)
+            print u"Sending %s to mldonkey(%s:%s)" % (unicode(episode), self.host, self.port)
             for url in episode.urls():
                 try:
                     self._send_command(url)
@@ -91,7 +86,7 @@ class Command(BaseCommand):
                     print "%s OK" % unicode(episode)
                     break
                 except MLAuthException:
-                    print "Wrong credentials for %s:%s" % (self.options.host, self.options.port)
+                    print "Wrong credentials for %s:%s" % (self.host, self.port)
                     return
                 except MLURLException:
                     print "%s failed. Trying next url." % url
