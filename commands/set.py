@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 from base import BaseCommand
 from optparse import OptionParser

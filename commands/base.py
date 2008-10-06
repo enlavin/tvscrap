@@ -1,9 +1,4 @@
-# tvscrap help
-# tvscrap register -r <show> -x <rx> [-m xx] [-n xx]
-# tvscrap shows
-# tvscrap episodes <show>
-# tvscrap delete <show> <episode>
-# tvscrap eztv [-f file|-u url]
+# -*- coding: utf-8 -*-
 from db import Config
 
 class BaseCommand(object):
