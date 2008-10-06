@@ -20,7 +20,7 @@ class BaseCommand(object):
         raise NotImplementedError #pass
 
     def get_config(self, varname):
-        var = self.store.find(Config, Config.varname == varname).one()
+        var = self.store.find(Config, Config.varname == unicode(varname)).one()
         if var:
             return var.value
         else:
