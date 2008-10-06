@@ -64,7 +64,7 @@ class Command(BaseCommand):
             if "Bad login" in session:
                 raise MLAuthException
             elif "exception" in session:
-                raise MLAuthException
+                raise MLURLException
 
         finally:
             telnet.close()
