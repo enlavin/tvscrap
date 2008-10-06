@@ -1,20 +1,31 @@
 import sys
 from base import BaseCommand
+from optparse import OptionParser
 
 class Command(BaseCommand):
-    def run(self, options):
+    def create_parser(self):
+        return OptionParser(usage="help")
+
+    def check_args(self, args):
+        (options, _) = self.parser.parse_args(args)
+        return True
+
+    def run(self):
         print """
 tvscrap help
     Show this help
 tvscrap register -r <show> -x <rx> [-m xx] [-n xx]
     Register a new show in DB
 tvscrap shows
-    Show list
+    List of registered shows
 tvscrap episodes <show>
     Episode list for a show
-tvscrap delete <show> <episode>
+tvscrap delete -s <show> [-e <episode>]
     Delete an episode from DB
+tvscrap pending
+    List of pending episodes
 tvscrap eztv [-f file|-u url]
-    Enqueue torrents from eztv
+    Download torrents from eztv
+tvscrap mldonkey [-h host] [-p port] [-u username] [-w password]
+    Queue torrents in mldonkey
         """
-        sys.exit(1)

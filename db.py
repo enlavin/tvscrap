@@ -44,6 +44,7 @@ class Episode(object):
     show_id = st.Int()
     show = st.Reference(show_id, Show.id)
     name = st.Unicode() # SxxEyy
+    url = st.Unicode() # torrent urls
     filename = st.Unicode()
     torrent = st.Unicode()
     size = st.Float()
@@ -51,7 +52,10 @@ class Episode(object):
     downloaded = st.Bool()
 
     def __unicode__(self):
-        return self.name
+        return u"%s, %s" % (self.show.name,self.name)
+
+    def urls(self):
+        return self.url.split("\n")
 
 Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
 
