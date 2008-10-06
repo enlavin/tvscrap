@@ -17,11 +17,13 @@ tvscrap help
 tvscrap register -r <show> -x <rx> [-m xx] [-n xx]
     Register a new show in DB
 tvscrap shows
-    Show list
+    List of registered shows
 tvscrap episodes <show>
     Episode list for a show
 tvscrap delete -s <show> [-e <episode>]
     Delete an episode from DB
+tvscrap pending
+    List of pending episodes
 tvscrap eztv [-f file|-u url]
     Download torrents from eztv
 tvscrap mldonkey [-h host] [-p port] [-u username] [-w password]
