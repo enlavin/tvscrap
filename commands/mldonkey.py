@@ -18,7 +18,7 @@ class Command(BaseCommand):
         parser = OptionParser(usage="mldonkey")
         self.parser = parser
 
-        parser.set_defaults(host='localhost', port=4000, user="admin", passwd="")
+        parser.set_defaults(host='localhost', port=4000, user="", passwd="")
         parser.add_option("-m", "--host", dest="host",
                 help="hostname", metavar="HOST")
         parser.add_option("-p", "--port", dest="port", type="int",
@@ -31,18 +31,35 @@ class Command(BaseCommand):
 
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
+
+        if self.options.user:
+            self.username = self.options.user
+        else:
+            self.username = self.get_config("mldonkey.username")
+
+        if self.options.passwd:
+            self.passwd = self.options.passwd
+        else:
+            self.passwd = self.get_config("mldonkey.password")
+        
+        if self.options.host:
+            self.host = self.options.host
+        else:
+            self.host = self.get_config("mldonkey.host")
+        
+        if self.options.port:
+            self.port = self.options.port
+        else:
+            self.port = self.get_config("mldonkey.port")
+        
         return True
 
-    def _download_torrent(self):
-        pass
-
     def _send_command(self, torrent):
-        # TODO: error control!
         telnet = Telnet()
-        telnet.open(self.options.host, self.options.port)
+        telnet.open(self.host, self.port)
         try:
             telnet.read_until(">")
-            telnet.write("auth %s %s\n" % (self.options.user, self.options.passwd))
+            telnet.write("auth %s %s\n" % (self.username, self.passwd))
             telnet.read_until(">")
             telnet.write("dllink %s\n" % str(torrent))
             telnet.write("quit\n")
