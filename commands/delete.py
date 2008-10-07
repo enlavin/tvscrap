@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 from base import BaseCommand
 from optparse import OptionParser
@@ -7,7 +8,7 @@ class Command(BaseCommand):
     """Borra una serie y todos sus capitulos"""
 
     def create_parser(self):
-        # 
+        #
         parser = OptionParser()
         parser.add_option("-s", "--show", dest="show",
                 help="show name", metavar="SHOW")
@@ -18,9 +19,9 @@ class Command(BaseCommand):
 
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
-        return getattr(self.options, "show") or 
+        return getattr(self.options, "show") or \
             (getattr(self.options, "show") and getattr(self.options, "episode"))
-        
+
     def run(self):
         show = self.store.find(Show, Show.name == unicode(self.options.show)).one()
         if not show:
@@ -30,8 +31,8 @@ class Command(BaseCommand):
         # borra un episodio
         if self.options.episode:
             episode = self.store.find(Episode,
-                Episode.name == unicode(episodename),
-                Show.name == unicode(showname),
+                Episode.name == unicode(self.options.episode),
+                Show.name == unicode(self.options.show),
                 Episode.show_id == Show.id).one()
             self.store.remove(episode)
         else:

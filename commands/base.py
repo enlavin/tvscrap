@@ -1,9 +1,5 @@
-# tvscrap help
-# tvscrap register -r <show> -x <rx> [-m xx] [-n xx]
-# tvscrap shows
-# tvscrap episodes <show>
-# tvscrap delete <show> <episode>
-# tvscrap eztv [-f file|-u url]
+# -*- coding: utf-8 -*-
+from db import Config
 
 class BaseCommand(object):
     def __init__(self, store):
@@ -23,4 +19,10 @@ class BaseCommand(object):
     def run(self):
         raise NotImplementedError #pass
 
+    def get_config(self, varname):
+        var = self.store.find(Config, Config.varname == unicode(varname)).one()
+        if var:
+            return var.value
+        else:
+            return ""
 

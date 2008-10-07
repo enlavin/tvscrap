@@ -14,7 +14,8 @@ CREATE TABLE episodes (
     torrent VARCHAR,
     size INTEGER,
     queued BOOLEAN,
-    downloaded BOOLEAN
+    downloaded BOOLEAN,
+    url VARCHAR
 );
 
 CREATE TABLE config (

@@ -62,8 +62,7 @@ Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
 class Config(object):
     """ Modelo para manejar configuracion del programa """
     __storm_table__ = 'config'
-    id = st.Int(primary=True)
-    varname = st.Unicode()
+    varname = st.Unicode(primary=True)
     value = st.Unicode()
 
     def __unicode__(self):
