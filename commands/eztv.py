@@ -44,7 +44,7 @@ class Command(BaseCommand):
                 episode_name = self.rx_episode_alt.findall(row["name"])[0]
                 # Normalizes episode numbering to SxxEyy
                 episode_name_parts = episode_name.split("x")
-                episode_name = "S%02dE%02d" % (int(n) for n in episode_name_parts[:2])
+                episode_name = u"S%02dE%02d" % tuple(int(n) for n in episode_name_parts[:2])
             except IndexError:
                 print "Can't find episode number. Aborting."
                 return
