@@ -10,8 +10,7 @@ class Command(BaseCommand):
     def __init__(self, store):
         super(Command, self).__init__(store)
         self.rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
-        self.rx_episode_alt = \
-                re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
+        self.rx_episode_alt = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
 
     def create_parser(self):
         # [-m url|-f file]
@@ -44,7 +43,7 @@ class Command(BaseCommand):
                 episode_name = self.rx_episode_alt.findall(row["name"])[0]
                 # Normalizes episode numbering to SxxEyy
                 episode_name_parts = episode_name.split("x")
-                episode_name = "S%02dE%02d" % (int(n) for n in episode_name_parts[:2])
+                episode_name = "S%02dE%02d" % tuple(int(n) for n in episode_name_parts[:2])
             except IndexError:
                 print "Can't find episode number. Aborting."
                 return
