@@ -4,41 +4,15 @@ from telnetlib import Telnet
 from base import BaseCommand
 from optparse import OptionParser
 from db import Episode, Show
+from torrent_downloader import TorrentCommand, TorrentAuthException, TorrentURLException
 
-class MLException(Exception):
-    pass
-
-class MLAuthException(MLException):
-    pass
-
-class MLURLException(MLException):
-    pass
-
-class Command(BaseCommand):
+class Command(TorrentCommand):
     def create_parser(self):
         parser = OptionParser(usage="mldonkey")
         self.parser = parser
 
-        parser.set_defaults(host='', port=0, user="", passwd="")
-        parser.add_option("-m", "--host", dest="host",
-                help="hostname", metavar="HOST")
-        parser.add_option("-p", "--port", dest="port", type="int",
-                help="port", metavar="PORT")
-        parser.add_option("-u", "--user", dest="user",
-                help="user", metavar="USER")
-        parser.add_option("-w", "--password", dest="passwd",
-                help="password", metavar="PASSWORD")
+        parser.set_defaults()
         return parser
-
-    def _best_value(self, opt, config_var, default):
-        if opt:
-            return opt
-
-        tmp = self.get_config(config_var)
-        if tmp:
-            return tmp
-
-        return default
 
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
@@ -62,33 +36,10 @@ class Command(BaseCommand):
             session = telnet.read_all()
             #print session
             if "Bad login" in session:
-                raise MLAuthException
+                raise TorrentAuthException
             elif "exception" in session:
-                raise MLURLException
+                raise TorrentURLException
 
         finally:
             telnet.close()
-
-    def run(self):
-        episodes = self.store.find(Episode, Episode.queued == False, Episode.downloaded == False)
-
-        if episodes.count() <= 0:
-            print "No pending episodes in DB. Exiting."
-            return
-
-        for episode in episodes:
-            print u"Sending %s to mldonkey(%s:%s)" % (unicode(episode), self.host, self.port)
-            for url in episode.urls():
-                try:
-                    self._send_command(url)
-                    episode.queued = True
-                    self.store.commit()
-                    print "%s OK" % unicode(episode)
-                    break
-                except MLAuthException:
-                    print "Wrong credentials for %s:%s" % (self.host, self.port)
-                    return
-                except MLURLException:
-                    print "%s failed. Trying next url." % url
-
 

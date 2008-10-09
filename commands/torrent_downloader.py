@@ -5,13 +5,13 @@ from base import BaseCommand
 from optparse import OptionParser
 from db import Episode, Show
 
-class MLException(Exception):
+class TorrentException(Exception):
     pass
 
-class MLAuthException(MLException):
+class TorrentAuthException(TorrentException):
     pass
 
-class MLURLException(MLException):
+class TorrentURLException(TorrentException):
     pass
 
 class TorrentCommand(BaseCommand):
@@ -23,7 +23,7 @@ class TorrentCommand(BaseCommand):
             return
 
         for episode in episodes:
-            print u"Sending %s to mldonkey(%s:%s)" % (unicode(episode), self.host, self.port)
+            print u"Sending %s to p2p" % (unicode(episode), )
             for url in episode.urls():
                 try:
                     # Subclassify
@@ -32,10 +32,10 @@ class TorrentCommand(BaseCommand):
                     self.store.commit()
                     print "%s OK" % unicode(episode)
                     break
-                except MLAuthException:
-                    print "Wrong credentials for %s:%s" % (self.host, self.port)
+                except TorrentAuthException:
+                    print "Wrong credentials" 
                     return
-                except MLURLException:
+                except TorrentURLException:
                     print "%s failed. Trying next url." % url
 
 
