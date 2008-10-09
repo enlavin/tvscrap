@@ -50,4 +50,5 @@ else:
 
             import win32api
             win32api.ShellExecute(0, "open", tempname, None, ".", 0)
+            # don't delete torrent file
 
