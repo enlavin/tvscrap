@@ -34,6 +34,20 @@ else:
 
         def _send_command(self, torrent):
             # todo: descarga el .torrent en un fichero temporal
+            try:
+                u = urllib2.urlopen(torrent)
+                torrent_data = u.read()
+            except HTTPError:
+                raise TorrentURLException
+
+            #TODO: check if the result is torrent or html
+            tempname = tempfile.mktemp(suffix='.torrent')
+            try:
+                fout = file(tempname, "wb+")
+                fout.write(torrent_data)
+            finally:
+                fout.close()
+
             import win32api
-            win32api.ShellExecute(0, "open", r'c:\temp\vostro_1310.pdf', None, ".", 0)
+            win32api.ShellExecute(0, "open", tempname, None, ".", 0)
 
