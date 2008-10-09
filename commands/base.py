@@ -26,3 +26,13 @@ class BaseCommand(object):
         else:
             return ""
 
+    def _best_value(self, opt, config_var, default):
+        if opt:
+            return opt
+
+        tmp = self.get_config(config_var)
+        if tmp:
+            return tmp
+
+        return default
+
