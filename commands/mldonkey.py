@@ -11,6 +11,15 @@ class Command(TorrentCommand):
         parser = OptionParser(usage="mldonkey")
         self.parser = parser
 
+        parser.add_option("-m", "--host", dest="host",
+                help="hostname", metavar="HOST")
+        parser.add_option("-p", "--port", dest="port", type="int",
+                help="port", metavar="PORT")
+        parser.add_option("-u", "--user", dest="user",
+                help="user", metavar="USER")
+        parser.add_option("-w", "--password", dest="passwd",
+                help="password", metavar="PASSWORD")
+
         parser.set_defaults()
         return parser
 
