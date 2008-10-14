@@ -5,4 +5,4 @@
 +* si falla uno de los links de torrent reintentar con las alternativas
 * campo fecha para ver a que hora se ha encolado y/o descargado un capitulo
 * campo error en cada episodio por si hubo problemas irrecuperables
-
+* distutils setup.py
