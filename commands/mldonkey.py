@@ -1,10 +1,24 @@
 # -*- coding: utf-8 -*-
-import sys
+# GNU General Public Licence (GPL)
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
 from telnetlib import Telnet
-from base import BaseCommand
+import socket
 from optparse import OptionParser
 from db import Episode, Show
-from torrent_downloader import TorrentCommand, TorrentAuthException, TorrentURLException
+from base import BaseCommand
+from torrent_downloader import TorrentCommand, TorrentAuthException,\
+    TorrentURLException, TorrentServerConnectException
 
 class Command(TorrentCommand):
     def create_parser(self):
@@ -35,7 +49,11 @@ class Command(TorrentCommand):
 
     def _send_command(self, torrent):
         telnet = Telnet()
-        telnet.open(self.host, int(self.port))
+        try:
+            telnet.open(self.host, int(self.port))
+        except socket.error:
+            raise TorrentServerConnectException
+
         try:
             telnet.read_until(">")
             telnet.write("auth %s %s\n" % (str(self.username), str(self.passwd)))
@@ -43,12 +61,10 @@ class Command(TorrentCommand):
             telnet.write("dllink %s\n" % str(torrent))
             telnet.write("quit\n")
             session = telnet.read_all()
-            #print session
             if "Bad login" in session:
                 raise TorrentAuthException
             elif "exception" in session:
                 raise TorrentURLException
-
         finally:
             telnet.close()
 

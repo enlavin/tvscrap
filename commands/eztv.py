@@ -1,9 +1,21 @@
 # -*- coding: utf-8 -*-
+# GNU General Public Licence (GPL)
+# 
+# This program is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free Software
+# Foundation; either version 2 of the License, or (at your option) any later
+# version.
+# This program is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+# FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more
+# details.
+# You should have received a copy of the GNU General Public License along with
+# this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+# Place, Suite 330, Boston, MA  02111-1307  USA
 import re
-import sys
 from base import BaseCommand
 from optparse import OptionParser
-from eztvefnet import Scrapper
+from lib.eztvefnet import Scrapper
 from db import Show, Episode
 
 class Command(BaseCommand):
@@ -48,13 +60,14 @@ class Command(BaseCommand):
                 print "Can't find episode number. Aborting."
                 return
 
+        episode_name = unicode(episode_name)
         episode = show.episodes.find(Episode.name == episode_name).one()
         if not episode:
             episode = Episode()
             episode.name = episode_name
             nospaces_name =  re.sub("\s+", ".", show.name.lstrip().rstrip())
-            episode.filename = "%s.%s.avi" % (nospaces_name, episode_name)
-            episode.torrent = "%s.%s.torrent" % (nospaces_name, episode_name)
+            episode.filename = u"%s.%s.avi" % (nospaces_name, episode_name)
+            episode.torrent = u"%s.%s.torrent" % (nospaces_name, episode_name)
             episode.size = row["size"]
             episode.show = show
             episode.queued = False
