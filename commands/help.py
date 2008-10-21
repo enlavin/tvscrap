@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
+import sys
 from base import BaseCommand
 from optparse import OptionParser
 
@@ -24,27 +25,28 @@ class Command(BaseCommand):
         return True
 
     def run(self):
+        tvscrap_cmd = sys.argv[0]
         print """
-tvscrap help
+%(tvscrap)s help
     Show this help
-tvscrap register -s <show> -x <rx> [-m xx] [-n xx]
+%(tvscrap)s register -s <show> -x <rx> [-m xx] [-n xx]
     Register a new show in DB
-tvscrap shows
+%(tvscrap)s shows
     List of registered shows
-tvscrap episodes <show>
+%(tvscrap)s episodes <show>
     Episode list for a show
-tvscrap delete -s <show> [-e <episode>]
+%(tvscrap)s delete -s <show> [-e <episode>]
     Delete an episode/show from DB
-tvscrap pending
+%(tvscrap)s pending
     List of pending episodes
-tvscrap eztv [-f file|-u url]
+%(tvscrap)s eztv [-f file|-u url]
     Download torrents from eztv
-tvscrap mldonkey [-m host] [-p port] [-u username] [-w password]
+%(tvscrap)s mldonkey [-m host] [-p port] [-u username] [-w password]
     Queue torrents in mldonkey
-tvscrap config
+%(tvscrap)s config
     Dump config variables
-tvscrap set -n varname -v value
+%(tvscrap)s set -n varname -v value
     Set/Update config variable
-tvscrap unset -n varname
+%(tvscrap)s unset -n varname
     Delete config variable
-        """
+        """ % {"tvscrap": tvscrap_cmd}
