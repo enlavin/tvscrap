@@ -43,6 +43,10 @@ class Command(BaseCommand):
     Download torrents from eztv
 %(tvscrap)s mldonkey [-m host] [-p port] [-u username] [-w password]
     Queue torrents in mldonkey
+%(tvscrap)s transm [-m host] [-p port] [-u username] [-w password]
+    Queue torrents in transmission
+%(tvscrap)s windefault
+    Queue torrents with Windows default torrent handler (only works in Windows)
 %(tvscrap)s config
     Dump config variables
 %(tvscrap)s set -n varname -v value
