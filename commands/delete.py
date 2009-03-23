@@ -46,7 +46,8 @@ class Command(BaseCommand):
                 Episode.name == unicode(self.options.episode),
                 Show.name == unicode(self.options.show),
                 Episode.show_id == Show.id).one()
-            self.store.remove(episode)
+            if episode:
+                self.store.remove(episode)
         else:
             # borra el show y sus episodios
             episodes = self.store.find(Episode, Episode.show_id == show.id)
