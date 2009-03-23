@@ -37,7 +37,8 @@ class TorrentCommand(BaseCommand):
             print "No pending episodes in DB. Exiting."
             return
 
-        for episode in episodes:
+        # use list() to expand query and to avoid conflicts in orm
+        for episode in list(episodes):
             print u"Sending %s to p2p" % (unicode(episode), )
             for url in episode.urls():
                 try:
