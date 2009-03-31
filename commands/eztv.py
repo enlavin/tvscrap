@@ -63,6 +63,7 @@ class Command(BaseCommand):
         episode_name = unicode(episode_name)
         episode = show.episodes.find(Episode.name == episode_name).one()
         if not episode:
+            #import pdb; pdb.set_trace()
             episode = Episode()
             episode.name = episode_name
             nospaces_name =  re.sub("\s+", ".", show.name.lstrip().rstrip())
