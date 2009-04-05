@@ -13,7 +13,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import sys
-from base import BaseCommand
+from lib.base import BaseCommand
 from optparse import OptionParser
 
 class Command(BaseCommand):
@@ -41,6 +41,8 @@ class Command(BaseCommand):
     List of pending episodes
 %(tvscrap)s eztv [-f file|-u url]
     Download torrents from eztv
+%(tvscrap)s eztv_mininova [-f file|-u url]
+    Download torrents from eztv RSS feed at mininova.org
 %(tvscrap)s mldonkey [-m host] [-p port] [-u username] [-w password]
     Queue torrents in mldonkey
 %(tvscrap)s transm [-m host] [-p port] [-u username] [-w password]

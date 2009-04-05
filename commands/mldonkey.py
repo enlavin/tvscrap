@@ -16,8 +16,8 @@ from telnetlib import Telnet
 import socket
 from optparse import OptionParser
 from db import Episode, Show
-from base import BaseCommand
-from torrent_downloader import TorrentCommand, TorrentAuthException,\
+from lib.base import BaseCommand
+from lib.torrent_downloader import TorrentCommand, TorrentAuthException,\
     TorrentURLException, TorrentServerConnectException
 
 class Command(TorrentCommand):

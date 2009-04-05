@@ -70,10 +70,11 @@ class Scrapper(object):
         result = []
         for trow in capitulos:
             try:
-                result.append(self._parse_episode(trow))
+                #result.append(self._parse_episode(trow))
+                yield self._parse_episode(trow)
             except:
                 pass
 
-        return result
+        #return result
 
 
