@@ -37,6 +37,7 @@ class Show(object):
     regexp_filter = st.Unicode()
     min_size = st.Float()
     max_size = st.Float()
+#    quality = st.Unicode()
 
     def __unicode__(self):
         return self.name
@@ -57,7 +58,7 @@ class Episode(object):
     show_id = st.Int()
     show = st.Reference(show_id, Show.id)
     name = st.Unicode() # SxxEyy
-    url = st.Unicode() # torrent urls
+    url = st.Unicode() # torrent urls, "\n" separated
     filename = st.Unicode()
     torrent = st.Unicode()
     size = st.Float()

@@ -14,10 +14,10 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import sys
 from telnetlib import Telnet
-from base import BaseCommand
+from lib.base import BaseCommand
 from optparse import OptionParser
 from db import Episode, Show
-from torrent_downloader import TorrentCommand
+from lib.torrent_downloader import TorrentCommand
 import urllib2
 
 if sys.platform != 'win32':
