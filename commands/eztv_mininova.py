@@ -16,6 +16,7 @@ try:
     import feedparser
 except ImportError:
     print "feedparser support not installed. Try easy_install feedparser."
+    import sys
     sys.exit(1)
 
 import re
