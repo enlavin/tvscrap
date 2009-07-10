@@ -25,6 +25,7 @@ from db import Show, Episode
 
 class Command(FeedCommand):
     def __init__(self, store):
+        self.rx_title_n_url = re.compile(r'(.*)\s+\[eztv\].*(https?://[^\s]+)', re.I)
         super(Command, self).__init__(store)
 
     def _config_feed(self):
@@ -32,9 +33,11 @@ class Command(FeedCommand):
         
     def _iter_feed(self):
         # reverse-ordered-by-date tweet list
-        for entry in self.twapi.GetUserTimeline("eztv_it"):
+        for entry in self.twapi.GetUserTimeline("eztv_it", count=20):
             try:
-                size = float(self.rx_episode_size.findall(entry["summary"])[0])
+                fields = rx.match(entry.text)
+                title = rx.group(1)
+                url = rx.group(2)
             except IndexError:
                 print "File size not available. Skipping"
                 continue
@@ -43,8 +46,7 @@ class Command(FeedCommand):
                 continue
 
             yield {
-                "name": entry["title"],
-                "size": size,
-                "url_torrent": [entry['enclosures'][0]["href"]],
+                "name": title,
+                "url_torrent": [url],
             }
 

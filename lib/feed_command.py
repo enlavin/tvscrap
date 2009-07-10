@@ -16,6 +16,8 @@ import re
 from lib.base import BaseCommand
 from optparse import OptionParser
 from db import Show, Episode
+import tempfile
+import os
 
 class FeedCommand(BaseCommand):
     def __init__(self, store):
@@ -82,9 +84,30 @@ class FeedCommand(BaseCommand):
                     (show.name, episode.name)
         return
 
+    def get_torrent_size(self, torrent_url):
+        try:
+            import hachoir_parser
+            import hachoir_metadata
+        except ImportError:
+            return
+
+        try:
+            torrent = urllib.urlopen(torrent_url)
+            ftmp = tempfile.mkstemp()
+            os.write(ftmp[0], torrent.read())
+            os.close(ftmp[0])
+            
+            metadata = hachoir_metadata.extractMetadata(
+                hachoir_parser.createParser(unicode(ftmp[1]), ftmp[1]))
+
+            return metadata.get("file_size")
+            
+        except IOError:
+            return
+
+
     def run(self):
         print "save_torrents()"
-        import feedparser
 
         self._config_feed()
 
@@ -95,6 +118,14 @@ class FeedCommand(BaseCommand):
             for show in list(shows):
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
+                    if not row.has_key("size"):
+                        # try to download .torrent file and analyze metadata to
+                        # extract final file size
+                        size = self.get_torrent_size(row["url_torrent"][0])
+                        if not size:
+                            continue
+                        row["size"] = float(size) / 1048576.0
+
                     if not show.check_size(row["size"]):
                         print u"%s: incorrecto (%3.1f Mb)" % \
                                 (row["name"], row["size"])
