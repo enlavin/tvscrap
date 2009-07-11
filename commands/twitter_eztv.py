@@ -39,10 +39,10 @@ class Command(FeedCommand):
                 title = rx.group(1)
                 url = rx.group(2)
             except IndexError:
-                print "File size not available. Skipping"
+                print "Field not available. Skipping"
                 continue
             except TypeError:
-                print "File size field corrupt. Skipping"
+                print "Field corrupt. Skipping"
                 continue
 
             yield {
