@@ -95,13 +95,16 @@ class FeedCommand(BaseCommand):
         try:
             torrent = urllib.urlopen(torrent_url)
             ftmp = tempfile.mkstemp()
-            os.write(ftmp[0], torrent.read())
-            os.close(ftmp[0])
-            
-            metadata = hachoir_metadata.extractMetadata(
-                hachoir_parser.createParser(unicode(ftmp[1]), ftmp[1]))
+            try:
+                os.write(ftmp[0], torrent.read())
+                os.close(ftmp[0])
+                
+                metadata = hachoir_metadata.extractMetadata(
+                    hachoir_parser.createParser(unicode(ftmp[1]), ftmp[1]))
 
-            return metadata.get("file_size")
+                return metadata.get("file_size")
+            finally:
+                os.unlink(ftmp[1])
             
         except IOError:
             return
