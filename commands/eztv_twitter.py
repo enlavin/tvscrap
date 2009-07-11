@@ -22,6 +22,7 @@ except ImportError:
 import re
 from optparse import OptionParser
 from db import Show, Episode
+from lib.feed_command import FeedCommand
 
 class Command(FeedCommand):
     def __init__(self, store):
@@ -35,9 +36,9 @@ class Command(FeedCommand):
         # reverse-ordered-by-date tweet list
         for entry in self.twapi.GetUserTimeline("eztv_it", count=20):
             try:
-                fields = rx.match(entry.text)
-                title = rx.group(1)
-                url = rx.group(2)
+                fields = self.rx_title_n_url.match(entry.text)
+                title = fields.group(1)
+                url = fields.group(2)
             except IndexError:
                 print "Field not available. Skipping"
                 continue

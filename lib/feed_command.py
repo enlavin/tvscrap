@@ -18,6 +18,7 @@ from optparse import OptionParser
 from db import Show, Episode
 import tempfile
 import os
+import urllib
 
 class FeedCommand(BaseCommand):
     def __init__(self, store):
