@@ -85,6 +85,7 @@ class FeedCommand(BaseCommand):
         return
 
     def get_torrent_size(self, torrent_url):
+        """download torrent from the url and try to extract size"""
         try:
             import hachoir_parser
             import hachoir_metadata
