@@ -26,7 +26,7 @@ from lib.feed_command import FeedCommand
 
 class Command(FeedCommand):
     def __init__(self, store):
-        self.rx_title_n_url = re.compile(r'(.*)\s+\[eztv\].*(https?://[^\s]+)', re.I)
+        self.rx_title_n_url = re.compile(r'(.*)\s*\[[^]]+\].*(https?://[^\s]+)', re.I)
         super(Command, self).__init__(store)
 
     def _config_feed(self):
@@ -34,7 +34,7 @@ class Command(FeedCommand):
         
     def _iter_feed(self):
         # reverse-ordered-by-date tweet list
-        for entry in self.twapi.GetUserTimeline("eztv_it", count=20):
+        for entry in self.twapi.GetUserTimeline("eztv_it", count=40):
             try:
                 fields = self.rx_title_n_url.match(entry.text)
                 title = fields.group(1)
@@ -44,6 +44,10 @@ class Command(FeedCommand):
                 continue
             except TypeError:
                 print "Field corrupt. Skipping"
+                continue
+            except AttributeError:
+                print "Unexpected text format. Skipping"
+                print entry.text
                 continue
 
             yield {

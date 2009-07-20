@@ -128,6 +128,7 @@ class FeedCommand(BaseCommand):
                         # extract final file size
                         size = self.get_torrent_size(row["url_torrent"][0])
                         if not size:
+                            print "Unable to get torrent size. Skipping"
                             continue
                         row["size"] = float(size) / 1048576.0
 
