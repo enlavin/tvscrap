@@ -13,6 +13,7 @@
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import sys
+import os
 from lib.base import BaseCommand
 from optparse import OptionParser
 
@@ -25,7 +26,7 @@ class Command(BaseCommand):
         return True
 
     def run(self):
-        tvscrap_cmd = sys.argv[0]
+        tvscrap_cmd = os.path.basename(sys.argv[0])
         print """
 %(tvscrap)s help
     Show this help
