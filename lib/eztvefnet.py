@@ -39,14 +39,14 @@ class Scrapper(object):
         """ Extrae el nombre y los enlaces torrent para un episodio """
         data = {}
 
+
         tds = trow.findAll('td')
         link = tds[1].findAll('a')[0]
-        data['name'] = unicode(link.findAll('font')[0].contents[0])
-        data['url_torrent'] = [unicode(link.get('href'))]
+        data['name'] = unicode(link.findAll('span')[0].contents[0])
+        data['url_torrent'] = []
         data['url_torrent'] += \
-            [unicode(re.sub('/tor/', '/get/', link.get('href')))
-                for link in tds[2].findAll('a')]
-        data['size'] = float(tds[4].contents[0])
+            [unicode(re.sub('/tor/', '/get/', url.get('href')))
+                for url in tds[2].findAll('a') if url.get('href').startswith("http")]
 
         return data
 
