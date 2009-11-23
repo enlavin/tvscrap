@@ -74,7 +74,7 @@ class FeedCommand(BaseCommand):
             episode.show = show
             episode.queued = False
             episode.downloaded = False
-            episode.url = "\n".join(row["url_torrent"])
+            episode.url = u"\n".join(row["url_torrent"])
             self.store.add(episode)
             self.store.flush()
             self.store.commit()
