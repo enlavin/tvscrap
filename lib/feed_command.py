@@ -88,6 +88,8 @@ class FeedCommand(BaseCommand):
     def get_torrent_size(self, torrent_url):
         """download torrent from the url and try to extract size"""
         try:
+            import gzip
+            import StringIO
             import hachoir_parser
             import hachoir_metadata
         except ImportError:
@@ -97,7 +99,15 @@ class FeedCommand(BaseCommand):
             torrent = urllib.urlopen(torrent_url)
             ftmp = tempfile.mkstemp()
             try:
-                os.write(ftmp[0], torrent.read())
+                torrent_data = torrent.read()
+                try:
+                    sio = StringIO.StringIO(torrent_data)
+                    gzfile = gzip.GzipFile(fileobj=sio)
+                    torrent_data = gzfile.read()
+                except IOError:
+                    pass
+
+                os.write(ftmp[0], torrent_data)
                 os.close(ftmp[0])
                 
                 metadata = hachoir_metadata.extractMetadata(
