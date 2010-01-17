@@ -14,9 +14,9 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import sys
 try:
-    import transmission
+    import transmissionrpc
 except ImportError:
-    print "Transmission support not installed. Try easy_install transmission."
+    print "TransmissionRPC support not installed. Try easy_install transmissionrpc."
     sys.exit(1)
 
 from optparse import OptionParser
@@ -57,11 +57,11 @@ class Command(TorrentCommand):
         if self.username:
             args["user"] = str(self.username)
             args["password"] = str(self.passwd)
-        client = transmission.transmission.Client(**args)
+        client = transmissionrpc.Client(**args)
 
         try:
             client.add_url(torrent)
-        except transmission.transmission.TransmissionError,e:
+        except transmissionrpc.TransmissionError,e:
             ml = e.message.lower()
             if "http error" in ml:
                 raise TorrentAuthException
