@@ -47,6 +47,8 @@ class Scrapper(object):
         data['url_torrent'] += \
             [unicode(re.sub('/tor/', '/get/', url.get('href')))
                 for url in tds[2].findAll('a') if url.get('href').startswith("http")]
+        # hack: los 2 primeros links no van del todo bien
+        data['url_torrent'][0], data['url_torrent'][2] = data['url_torrent'][2], data['url_torrent'][0]
 
         return data
 
