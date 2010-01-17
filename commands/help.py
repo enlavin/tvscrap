@@ -44,6 +44,8 @@ class Command(BaseCommand):
     Download torrents from eztv
 %(tvscrap)s eztv_mininova [-f file|-u url]
     Download torrents from eztv RSS feed at mininova.org
+%(tvscrap)s eztv_btchat [-f file|-u url]
+    Download torrents from eztv RSS feed at bt-chat.com
 %(tvscrap)s eztv_twitter 
     Download torrents from eztv twitter timeline
 %(tvscrap)s mldonkey [-m host] [-p port] [-u username] [-w password]
