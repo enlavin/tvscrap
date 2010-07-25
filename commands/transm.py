@@ -60,7 +60,7 @@ class Command(TorrentCommand):
         client = transmissionrpc.Client(**args)
 
         try:
-            client.add_url(torrent)
+            client.add_uri(uri=torrent)
         except transmissionrpc.TransmissionError,e:
             ml = e.message.lower()
             if "http error" in ml:
@@ -69,6 +69,8 @@ class Command(TorrentCommand):
                 raise TorrentURLException
             elif "file does not exist" in ml:
                 raise TorrentURLException
+            elif "duplicate" in ml:
+                print("warning: duplicate torrent")
             else:
                 raise TorrentServerConnectException
 
