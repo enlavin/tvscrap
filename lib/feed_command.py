@@ -113,7 +113,10 @@ class FeedCommand(BaseCommand):
                 metadata = hachoir_metadata.extractMetadata(
                     hachoir_parser.createParser(unicode(ftmp[1]), ftmp[1]))
 
-                return metadata.get("file_size")
+                if metadata:
+                    return metadata.get("file_size")
+                    
+                return None
             finally:
                 os.unlink(ftmp[1])
             
