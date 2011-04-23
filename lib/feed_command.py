@@ -136,7 +136,7 @@ class FeedCommand(BaseCommand):
             for show in list(shows):
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if not row.has_key("size"):
+                    if not row.has_key("size") or row.get("size",0) <= 0:
                         # try to download .torrent file and analyze metadata to
                         # extract final file size
                         size = self.get_torrent_size(row["url_torrent"][0])

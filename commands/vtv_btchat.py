@@ -23,33 +23,9 @@ import re
 from optparse import OptionParser
 from db import Show, Episode
 from lib.feed_command import FeedCommand
+import eztv_btchat
 
-class Command(FeedCommand):
 
-    BTCHAT_RSS="http://rss.bt-chat.com/?group=3&cat=9"
-    
-    def __init__(self, store):
-        super(Command, self).__init__(store)
-        self.rx_episode_size = re.compile(u'Size:\s+([0-9.]+)')
-
-    def _config_feed(self):
-        import feedparser
-
-        if getattr(self.options, "file"):
-            self.feed = feedparser.parse(self.options.file)
-        elif getattr(self.options, "url"):
-            self.feed = feedparser.parse(self.options.url)
-        else:
-            self.feed = feedparser.parse(self.__class__.BTCHAT_RSS)
-
-        if not self.feed["entries"]:
-            raise Exception()
-
-    def _iter_feed(self):
-        for entry in self.feed["entries"]:
-            yield {
-                "name": entry["title"].replace(u".", u" "),
-                "url_torrent": [entry['link']],
-                "size": float(entry.get("contentlength", 0)) / 1048576.0,
-            }
+class Command(eztv_btchat.Command):
+    BTCHAT_RSS="http://rss.bt-chat.com/?group=2&cat=9"
 
