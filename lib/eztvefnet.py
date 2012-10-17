@@ -35,6 +35,17 @@ class Scrapper(object):
         return self._parse_frontpage()
     __call__ = func.retry_n(__call__, 3)
 
+    def _get_size(self, title):
+        rx = re.compile("\(([\d\.]+)\s+(MB|GB)\)")
+        try:
+            size, units = rx.findall(title)[0]
+            size = float(size)
+            if units=="GB":
+                size = size * 1000
+            return size
+        except:
+            return 0
+
     def _parse_episode(self, trow):
         """ Extrae el nombre y los enlaces torrent para un episodio """
         data = {}
@@ -42,6 +53,7 @@ class Scrapper(object):
         tds = trow.findAll('td')
         link = tds[1].findAll('a')[0]
         data['name'] = unicode(link.contents[0])
+        data["size"] = self._get_size(link.get("title"))
         data['url_torrent'] = []
         data['url_torrent'] += \
             [unicode(re.sub('/tor/', '/get/', url.get('href')))
