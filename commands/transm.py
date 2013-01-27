@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -20,10 +20,13 @@ except ImportError:
     sys.exit(1)
 
 from optparse import OptionParser
+import urllib2
+
 from db import Episode, Show
 from lib.base import BaseCommand
 from lib.torrent_downloader import TorrentCommand, TorrentAuthException,\
     TorrentURLException, TorrentServerConnectException
+
 
 class Command(TorrentCommand):
     def create_parser(self):
@@ -61,7 +64,7 @@ class Command(TorrentCommand):
 
         try:
             client.add_uri(uri=torrent)
-        except transmissionrpc.TransmissionError,e:
+        except transmissionrpc.TransmissionError, e:
             ml = e.message.lower()
             if "http error" in ml:
                 raise TorrentAuthException, None, sys.exc_info()[2]
@@ -73,5 +76,5 @@ class Command(TorrentCommand):
                 print("warning: duplicate torrent")
             else:
                 raise TorrentServerConnectException, None, sys.exc_info()[2]
-	except urllib2.URLError:
+        except urllib2.URLError:
                 raise TorrentServerConnectException, None, sys.exc_info()[2]
