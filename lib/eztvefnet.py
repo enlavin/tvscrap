@@ -7,7 +7,7 @@ de series con los enlaces a los ficheros .torrent que sirven
 para descargarlos.
 """
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -23,6 +23,7 @@ import re
 import urllib
 import BeautifulSoup
 import func
+
 
 class Scrapper(object):
     """ WebScrapper for eztv.it """
@@ -40,7 +41,7 @@ class Scrapper(object):
         try:
             size, units = rx.findall(title)[0]
             size = float(size)
-            if units=="GB":
+            if units == "GB":
                 size = size * 1000
             return size
         except:
@@ -57,7 +58,7 @@ class Scrapper(object):
         data['url_torrent'] = []
         data['url_torrent'] += \
             [unicode(re.sub('/tor/', '/get/', url.get('href')))
-                for url in tds[2].findAll('a') if url.get('href').startswith("http")]
+                for url in tds[2].findAll('a') if url.get('href')]
 
         return data
 
