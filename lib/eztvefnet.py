@@ -20,7 +20,7 @@ para descargarlos.
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import re
-import urllib
+import requests
 import BeautifulSoup
 import func
 
@@ -74,8 +74,10 @@ class Scrapper(object):
         else:
             if not self.url:
                 self.url = "http://eztv.it/frontpage.php"
-            url = urllib.urlopen(self.url)
-            html = url.read()
+            resp = requests.get(self.url, timeout=60)
+            if resp.status_code != 200:
+                return
+            html = resp.text
         soup = BeautifulSoup.BeautifulSoup(html)
         capitulos = soup.findAll('tr', attrs={'class': 'forum_header_border'})
 

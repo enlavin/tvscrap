@@ -4,7 +4,7 @@
 TVScrap.py
 """
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -17,6 +17,7 @@ TVScrap.py
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import re
+import socket
 import sys
 import storm.locals as st
 from db import Show, Episode, connect_db
@@ -25,6 +26,8 @@ class TVScrap(object):
     def __init__(self):
         self.seriesdb = connect_db()
         self.store = st.Store(self.seriesdb)
+
+        socket.setdefaulttimeout(60)
 
     def get_command(self, name):
         """Find the module implementing a command and returns a initialized instance of Command"""

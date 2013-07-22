@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -12,13 +12,14 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
+import os
 import re
+import requests
+import tempfile
+
+from db import Show, Episode
 from lib.base import BaseCommand
 from optparse import OptionParser
-from db import Show, Episode
-import tempfile
-import os
-import urllib
 
 class FeedCommand(BaseCommand):
     def __init__(self, store):
@@ -96,10 +97,13 @@ class FeedCommand(BaseCommand):
             return
 
         try:
-            torrent = urllib.urlopen(torrent_url)
+            torrent = requests.get(torrent_url, timeout=60)
             ftmp = tempfile.mkstemp()
             try:
-                torrent_data = torrent.read()
+                if torrent.status_code != 200:
+                    return
+
+                torrent_data = torrent.text
                 try:
                     sio = StringIO.StringIO(torrent_data)
                     gzfile = gzip.GzipFile(fileobj=sio)
@@ -109,17 +113,17 @@ class FeedCommand(BaseCommand):
 
                 os.write(ftmp[0], torrent_data)
                 os.close(ftmp[0])
-                
+
                 metadata = hachoir_metadata.extractMetadata(
                     hachoir_parser.createParser(unicode(ftmp[1]), ftmp[1]))
 
                 if metadata:
                     return metadata.get("file_size")
-                    
+
                 return None
             finally:
                 os.unlink(ftmp[1])
-            
+
         except IOError:
             return
 
