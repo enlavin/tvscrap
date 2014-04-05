@@ -5,7 +5,7 @@ db.py
 Modelos de la BD de series
 """
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -44,7 +44,17 @@ class Show(object):
 
     def match(self, candidate):
         """ Comprueba si el parametro cumple la expresion regular """
-        return re.compile(self.regexp_filter).match(candidate)
+        relaxed_regexp = self.regexp_filter.replace(r'\s', r'.')
+
+        if re.compile(self.regexp_filter).match(candidate) is not None:
+            return True
+
+        # try a more relaxed version of the regexp, just for the fun of it
+        if re.compile(relaxed_regexp).match(candidate) is not None:
+            return True
+
+        return False
+
 
     def check_size(self, size):
         """ Comprueba si el tamaño está dentro de los límites """

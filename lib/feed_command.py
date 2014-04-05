@@ -12,6 +12,7 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
+from optparse import OptionParser
 import os
 import re
 import requests
@@ -19,13 +20,12 @@ import tempfile
 
 from db import Show, Episode
 from lib.base import BaseCommand
-from optparse import OptionParser
+from lib.episodes import get_episode_number, InvalidEpisodeName
+
 
 class FeedCommand(BaseCommand):
     def __init__(self, store):
         super(FeedCommand, self).__init__(store)
-        self.rx_episode = re.compile(u'(?P<episode_name>S[0-9]{2}E[0-9]{2})')
-        self.rx_episode_alt = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
 
     def create_parser(self):
         # [-m url|-f file]
@@ -44,31 +44,22 @@ class FeedCommand(BaseCommand):
            (getattr(self.options, "file") and not getattr(self.options, "url")) or \
            (not getattr(self.options, "file") and not getattr(self.options, "url"))
 
-
     def _save_new_episode(self, show, row):
         """
         Encola en BD un nuevo episodio
         """
         try:
-            # SxxEyy numbering scheme
-            episode_name = self.rx_episode.findall(row["name"])[0]
-        except IndexError:
-            try:
-                # SxEE numbering scheme
-                episode_name = self.rx_episode_alt.findall(row["name"])[0]
-                # Normalizes episode numbering to SxxEyy
-                episode_name_parts = episode_name.split("x")
-                episode_name = "S%02dE%02d" % tuple(int(n) for n in episode_name_parts[:2])
-            except IndexError:
-                print "Can't find episode number. Aborting."
-                return
+            episode_name = get_episode_number(row['name'])
+        except InvalidEpisodeName:
+            print "Can't find episode number. Aborting."
+            return
 
         episode_name = unicode(episode_name)
         episode = show.episodes.find(Episode.name == episode_name).one()
         if not episode:
             episode = Episode()
             episode.name = episode_name
-            nospaces_name =  re.sub("\s+", ".", show.name.lstrip().rstrip())
+            nospaces_name = re.sub("\s+", ".", show.name.lstrip().rstrip())
             episode.filename = u"%s.%s.avi" % (nospaces_name, episode_name)
             episode.torrent = u"%s.%s.torrent" % (nospaces_name, episode_name)
             episode.size = row["size"]
@@ -83,7 +74,7 @@ class FeedCommand(BaseCommand):
         #elif episode.queued or episode.downloaded:
         else:
             print "Episodio %s:%s already queued or downloaded" % \
-                    (show.name, episode.name)
+                (show.name, episode.name)
         return
 
     def get_torrent_size(self, torrent_url):
@@ -127,7 +118,6 @@ class FeedCommand(BaseCommand):
         except IOError:
             return
 
-
     def run(self):
         print "save_torrents()"
 
@@ -140,7 +130,7 @@ class FeedCommand(BaseCommand):
             for show in list(shows):
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if not row.has_key("size") or row.get("size",0) <= 0:
+                    if not 'size' in row or row.get("size", 0) <= 0:
                         # try to download .torrent file and analyze metadata to
                         # extract final file size
                         size = self.get_torrent_size(row["url_torrent"][0])
@@ -151,7 +141,7 @@ class FeedCommand(BaseCommand):
 
                     if not show.check_size(row["size"]):
                         print u"%s: incorrecto (%3.1f Mb)" % \
-                                (row["name"], row["size"])
+                            (row["name"], row["size"])
                     else:
                         episode = self._save_new_episode(show, row)
                         if not episode:
@@ -164,7 +154,7 @@ class FeedCommand(BaseCommand):
                         #    self.store.commit()
                         #
                         print "Queued %s %s %s %s %s" % \
-                                (show.name, episode.name,
-                                 episode.torrent, episode.url,
-                                 episode.filename)
+                            (show.name, episode.name,
+                                episode.torrent, episode.url,
+                                episode.filename)
 

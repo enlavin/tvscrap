@@ -16,11 +16,11 @@ TVScrap.py
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-import re
 import socket
 import sys
 import storm.locals as st
-from db import Show, Episode, connect_db
+from db import connect_db
+
 
 class TVScrap(object):
     def __init__(self):

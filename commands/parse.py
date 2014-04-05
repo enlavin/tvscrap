@@ -12,10 +12,12 @@
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-import sys
-from lib.base import BaseCommand
 from optparse import OptionParser
+import sys
+
 from db import Show
+from lib.base import BaseCommand
+from lib.episodes import get_episode_number, InvalidEpisodeName
 
 class Command(BaseCommand):
     """Parses a file name and return normalized data"""
@@ -38,12 +40,19 @@ class Command(BaseCommand):
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
         self.filename = getattr(self.options, 'filename')
-        print_show = getattr(self.options, 'show')
-        print_episode = getattr(self.options, 'episode')
+        self.print_show = getattr(self.options, 'show')
+        self.print_episode = getattr(self.options, 'episode')
 
         # xor
-        return self.filename and (print_show ^ print_episode)
+        return self.filename and (self.print_show ^ self.print_episode)
 
     def run(self):
-        pass
-
+        shows = self.store.find(Show).order_by(Show.name)
+        for show in shows:
+            if show.match(self.filename):
+                if self.print_show:
+                    print(show.name)
+                elif self.print_episode:
+                    print(get_episode_number(self.filename))
+                else:
+                    pass

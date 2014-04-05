@@ -46,7 +46,7 @@ class Command(BaseCommand):
     Download torrents from eztv RSS feed at mininova.org
 %(tvscrap)s eztv_btchat [-f file|-u url]
     Download torrents from eztv RSS feed at bt-chat.com
-%(tvscrap)s eztv_twitter 
+%(tvscrap)s eztv_twitter
     Download torrents from eztv twitter timeline
 %(tvscrap)s mldonkey [-m host] [-p port] [-u username] [-w password]
     Queue torrents in mldonkey
@@ -60,4 +60,6 @@ class Command(BaseCommand):
     Set/Update config variable
 %(tvscrap)s unset -n varname
     Delete config variable
+%(tvscrap)s parse -f filename [-s|-e]
+    Parses a file name and prints the canonical show name or episode
         """ % {"tvscrap": tvscrap_cmd}
