@@ -7,8 +7,8 @@ TVScrap.py is a tool to automate the download of weekly shows using eztv.it and 
 Features
 --------
 
-* [MLDonkey](http://mldonkey.sourceforge.net/Main_Page) support (using telnet)
 * [Transmission](http://www.transmissionbt.com) support (via [transmissionrpc](http://www.bitbucket.org/blueluna/transmissionrpc/) module)
+* [MLDonkey](http://mldonkey.sourceforge.net/Main_Page) support (using telnet)
 * Windows support (uses Windows Shell and the default handler of .torrent files)
 * Modular: can be easily extended with new commands (RSS feeds, new P2P clients, ...).
 
