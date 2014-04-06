@@ -42,19 +42,19 @@ class Show(object):
     def __unicode__(self):
         return self.name
 
-    def match(self, candidate):
+    def match(self, candidate, relax=False):
         """ Comprueba si el parametro cumple la expresion regular """
-        relaxed_regexp = self.regexp_filter.replace(r'\s', r'.')
 
         if re.compile(self.regexp_filter).match(candidate) is not None:
             return True
 
         # try a more relaxed version of the regexp, just for the fun of it
-        if re.compile(relaxed_regexp).match(candidate) is not None:
-            return True
+        if relax:
+            relaxed_regexp = self.regexp_filter.replace(r'\s', r'[\s_.-]')
+            if re.compile(relaxed_regexp).match(candidate) is not None:
+                return True
 
         return False
-
 
     def check_size(self, size):
         """ Comprueba si el tamaño está dentro de los límites """
@@ -67,8 +67,8 @@ class Episode(object):
     id = st.Int(primary=True)
     show_id = st.Int()
     show = st.Reference(show_id, Show.id)
-    name = st.Unicode() # SxxEyy
-    url = st.Unicode() # torrent urls, "\n" separated
+    name = st.Unicode()  # SxxEyy
+    url = st.Unicode()  # torrent urls, "\n" separated
     filename = st.Unicode()
     torrent = st.Unicode()
     size = st.Float()
@@ -76,12 +76,13 @@ class Episode(object):
     downloaded = st.Bool()
 
     def __unicode__(self):
-        return u"%s, %s" % (self.show.name,self.name)
+        return u"%s, %s" % (self.show.name, self.name)
 
     def urls(self):
         return self.url.split("\n")
 
 Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
+
 
 class Config(object):
     """ Modelo para manejar configuracion del programa """
@@ -91,6 +92,7 @@ class Config(object):
 
     def __unicode__(self):
         return self.varname
+
 
 def config_program_folder():
     """
@@ -116,10 +118,12 @@ def config_program_folder():
 
     return configdir
 
+
 def get_db_filename():
     """ Devuelve el nombre de la BD de series """
     homedir = config_program_folder()
     return os.path.join(homedir, "tvscrap.db")
+
 
 def connect_db():
     """ Conecta con la BD de series """

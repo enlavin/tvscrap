@@ -19,6 +19,7 @@ from db import Show
 from lib.base import BaseCommand
 from lib.episodes import get_episode_number, InvalidEpisodeName
 
+
 class Command(BaseCommand):
     """Parses a file name and return normalized data"""
 
@@ -49,10 +50,15 @@ class Command(BaseCommand):
     def run(self):
         shows = self.store.find(Show).order_by(Show.name)
         for show in shows:
-            if show.match(self.filename):
+            # Use a different regexp because filenames are similar, but not
+            # always the same as the string used in the feed
+            if show.match(self.filename, relax=True):
                 if self.print_show:
                     print(show.name)
                 elif self.print_episode:
-                    print(get_episode_number(self.filename))
+                    try:
+                        print(get_episode_number(self.filename))
+                    except InvalidEpisodeName:
+                        pass
                 else:
                     pass
