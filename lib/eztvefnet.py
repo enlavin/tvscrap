@@ -73,8 +73,8 @@ class Scrapper(object):
                 fhtml.close()
         else:
             if not self.url:
-                self.url = "http://eztv.it/frontpage.php"
-            resp = requests.get(self.url, timeout=60)
+                self.url = "http://eztv.ch/frontpage.php"
+            resp = requests.get(self.url, timeout=60, verify=False)
             if resp.status_code != 200:
                 return
             html = resp.text
