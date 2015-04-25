@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -14,6 +14,7 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 from db import Config
 
+
 class BaseCommand(object):
     def __init__(self, store):
         self.store = store
@@ -21,7 +22,7 @@ class BaseCommand(object):
         self.options = {}
 
     def create_parser(self):
-        raise NotImplementedError #pass
+        raise NotImplementedError()
 
     def check_args(self, args):
         return False
@@ -30,7 +31,7 @@ class BaseCommand(object):
         print self.parser.format_help()
 
     def run(self):
-        raise NotImplementedError #pass
+        raise NotImplementedError()
 
     def get_config(self, varname):
         var = self.store.find(Config, Config.varname == unicode(varname)).one()

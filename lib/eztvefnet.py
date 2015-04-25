@@ -2,9 +2,8 @@
 """
 eztvefnet.py
 
-Navega por la web de eztv.it y extrae un listado de capitulos
-de series con los enlaces a los ficheros .torrent que sirven
-para descargarlos.
+scraps the web https://eztv.* to extract a list of episodes and
+their torrent links.
 """
 # GNU General Public Licence (GPL)
 #
@@ -26,7 +25,7 @@ import func
 
 
 class Scrapper(object):
-    """ WebScrapper for eztv.it """
+    """ web scrapper for https://eztv.* """
     def __init__(self):
         self.url = self.file = None
 
@@ -48,7 +47,7 @@ class Scrapper(object):
             return 0
 
     def _parse_episode(self, trow):
-        """ Extrae el nombre y los enlaces torrent para un episodio """
+        """ Extract the name and torrent links for an episode """
         data = {}
 
         tds = trow.findAll('td')
@@ -73,7 +72,7 @@ class Scrapper(object):
                 fhtml.close()
         else:
             if not self.url:
-                self.url = "http://eztv.ch/frontpage.php"
+                self.url = "https://eztv.ch/frontpage.php"
             resp = requests.get(self.url, timeout=60, verify=False)
             if resp.status_code != 200:
                 return
@@ -81,14 +80,8 @@ class Scrapper(object):
         soup = BeautifulSoup.BeautifulSoup(html)
         capitulos = soup.findAll('tr', attrs={'class': 'forum_header_border'})
 
-        result = []
         for trow in capitulos:
             try:
-                #result.append(self._parse_episode(trow))
                 yield self._parse_episode(trow)
             except:
                 pass
-
-        #return result
-
-

@@ -22,8 +22,6 @@ except ImportError:
 from optparse import OptionParser
 import urllib2
 
-from db import Episode, Show
-from lib.base import BaseCommand
 from lib.torrent_downloader import TorrentCommand, TorrentAuthException,\
     TorrentURLException, TorrentServerConnectException
 
@@ -67,14 +65,14 @@ class Command(TorrentCommand):
         except transmissionrpc.TransmissionError, e:
             ml = e.message.lower()
             if "http error" in ml:
-                raise TorrentAuthException, None, sys.exc_info()[2]
+                raise TorrentAuthException(), None, sys.exc_info()[2]
             elif "corrupt" in ml:
-                raise TorrentURLException, None, sys.exc_info()[2]
+                raise TorrentURLException(), None, sys.exc_info()[2]
             elif "file does not exist" in ml:
-                raise TorrentURLException, None, sys.exc_info()[2]
+                raise TorrentURLException(), None, sys.exc_info()[2]
             elif "duplicate" in ml:
                 print("warning: duplicate torrent")
             else:
-                raise TorrentServerConnectException, None, sys.exc_info()[2]
+                raise TorrentServerConnectException(), None, sys.exc_info()[2]
         except urllib2.URLError:
-                raise TorrentServerConnectException, None, sys.exc_info()[2]
+                raise TorrentServerConnectException(), None, sys.exc_info()[2]

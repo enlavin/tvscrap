@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 """
 TVScrap.py
+
+https://github.com/enlavin/tvscrap
 """
 # GNU General Public Licence (GPL)
 #
@@ -27,6 +29,8 @@ class TVScrap(object):
         self.seriesdb = connect_db()
         self.store = st.Store(self.seriesdb)
 
+        # increase the default timeout to reduce the chance of timeouts
+        # when the uploads are making outgoing connections slower
         socket.setdefaulttimeout(60)
 
     def get_command(self, name):
