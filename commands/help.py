@@ -27,39 +27,39 @@ class Command(BaseCommand):
 
     def run(self):
         tvscrap_cmd = os.path.basename(sys.argv[0])
-        print """
-%(tvscrap)s help
+        print("""
+{tvscrap} help
     Show this help
-%(tvscrap)s register -s <show> -x <rx> [-m xx] [-n xx]
+{tvscrap} register -s <show> -x <rx> [-m xx] [-n xx]
     Register a new show in DB
-%(tvscrap)s shows
+{tvscrap} shows
     List of registered shows
-%(tvscrap)s episodes <show>
+{tvscrap} episodes <show>
     Episode list for a show
-%(tvscrap)s delete -s <show> [-e <episode>]
+{tvscrap} delete -s <show> [-e <episode>]
     Delete an episode/show from DB
-%(tvscrap)s pending
+{tvscrap} pending
     List of pending episodes
-%(tvscrap)s eztv [-f file|-u url]
+{tvscrap} eztv [-f file|-u url]
     Download torrents from eztv
-%(tvscrap)s eztv_mininova [-f file|-u url]
+{tvscrap} eztv_mininova [-f file|-u url]
     Download torrents from eztv RSS feed at mininova.org
-%(tvscrap)s eztv_btchat [-f file|-u url]
+{tvscrap} eztv_btchat [-f file|-u url]
     Download torrents from eztv RSS feed at bt-chat.com
-%(tvscrap)s eztv_twitter
+{tvscrap} eztv_twitter
     Download torrents from eztv twitter timeline
-%(tvscrap)s mldonkey [-m host] [-p port] [-u username] [-w password]
+{tvscrap} mldonkey [-m host] [-p port] [-u username] [-w password]
     Queue torrents in mldonkey
-%(tvscrap)s transm [-m host] [-p port] [-u username] [-w password]
+{tvscrap} transm [-m host] [-p port] [-u username] [-w password]
     Queue torrents in transmission
-%(tvscrap)s windefault
+{tvscrap} windefault
     Queue torrents with Windows default torrent handler (only works in Windows)
-%(tvscrap)s config
+{tvscrap} config
     Dump config variables
-%(tvscrap)s set -n varname -v value
+{tvscrap} set -n varname -v value
     Set/Update config variable
-%(tvscrap)s unset -n varname
+{tvscrap} unset -n varname
     Delete config variable
-%(tvscrap)s parse -f filename [-s|-e]
+{tvscrap} parse -f filename [-s|-e]
     Parses a file name and prints the canonical show name or episode
-        """ % {"tvscrap": tvscrap_cmd}
+        """.format(tvscrap=tvscrap_cmd))

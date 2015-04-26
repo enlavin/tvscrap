@@ -34,7 +34,7 @@ class TVConfigError(Exception):
 
 @six.python_2_unicode_compatible
 class Show(object):
-    """ Modelo para almacenar una Serie """
+    """model for a tv show"""
 
     def __init__(self, id, name, regexp_filter, min_size, max_size):
         self.id = id
@@ -68,17 +68,7 @@ class Show(object):
 
 @six.python_2_unicode_compatible
 class Episode(object):
-    """ Modelo para almacenar un Episodio de una serie """
-    #id = st.Int(primary=True)
-    #show_id = st.Int()
-    #show = st.Reference(show_id, Show.id)
-    #name = st.Unicode()  # SxxEyy
-    #url = st.Unicode()  # torrent urls, "\n" separated
-    #filename = st.Unicode()
-    #torrent = st.Unicode()
-    #size = st.Float()
-    #queued = st.Bool()
-    #downloaded = st.Bool()
+    """model for an episode"""
 
     def __init__(self, show_name, id, show_id, name, url, filename, torrent, size, queued, downloaded):
         self.id = id

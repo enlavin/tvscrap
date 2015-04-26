@@ -20,14 +20,13 @@ https://github.com/enlavin/tvscrap
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import socket
 import sys
-import storm.locals as st
-from db import connect_db
+
+import db
 
 
 class TVScrap(object):
     def __init__(self):
-        self.seriesdb = connect_db()
-        self.store = st.Store(self.seriesdb)
+        self.store = db.connect_db()
 
         # increase the default timeout to reduce the chance of timeouts
         # when the uploads are making outgoing connections slower

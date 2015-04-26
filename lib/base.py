@@ -28,7 +28,7 @@ class BaseCommand(object):
         return False
 
     def show_help(self):
-        print self.parser.format_help()
+        print(self.parser.format_help())
 
     def run(self):
         raise NotImplementedError()
