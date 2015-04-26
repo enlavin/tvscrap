@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -14,12 +14,11 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 from lib.base import BaseCommand
 from optparse import OptionParser
-from db import Show, Episode
+
 
 class Command(BaseCommand):
-    """Muestra los capitulos pendientes de descargar"""
+    """shows the episodes not yet queued"""
     def create_parser(self):
-        #
         parser = OptionParser()
         self.parser = parser
         return parser
@@ -29,13 +28,13 @@ class Command(BaseCommand):
         return True
 
     def run(self):
-        episodes = self.store.find(Episode, Episode.queued == False)
-        if episodes.count() <= 0:
-            print "No episodes pending"
+        episodes = list(self.store.episodes_not_queued())
+        if len(episodes) <= 0:
+            print("No episodes pending")
             return
 
         for episode in episodes:
-            print "%s|%s|%s|%3.1f" % \
-                    (episode.name, episode.filename, episode.torrent, episode.size)
+            print("{}|{}|{}|{:3.1f}".format(
+                episode.name, episode.filename, episode.torrent, episode.size))
 
 

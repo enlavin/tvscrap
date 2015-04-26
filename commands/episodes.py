@@ -14,7 +14,6 @@
 # Place, Suite 330, Boston, MA  02111-1307  USA
 from lib.base import BaseCommand
 from optparse import OptionParser
-from db import Show, Episode
 
 
 class Command(BaseCommand):
