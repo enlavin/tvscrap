@@ -179,6 +179,20 @@ class DB(object):
         finally:
             c.close()
 
+    def episodes_by_show(self, show_name):
+        c = self.conn.cursor()
+        try:
+            c.execute("""
+                SELECT episodes.id, episodes.show_id, episodes.name, episodes.url, episodes.filename, episodes.torrent, episodes.size, episodes.queued, episodes.downloaded
+                      FROM episodes, shows
+                      WHERE shows.name = ? AND shows.id = episodes.show_id
+                      ORDER BY episodes.name""", (show_name, ))
+            for row in c.fetchall():
+                yield Episode(show_name, *row)
+        finally:
+            c.close()
+
+
 
 def connect_db():
     """ Conecta con la BD de series """

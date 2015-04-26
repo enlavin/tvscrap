@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -16,10 +16,11 @@ from lib.base import BaseCommand
 from optparse import OptionParser
 from db import Show, Episode
 
+
 class Command(BaseCommand):
     """Muestra los capitulos registrados de una serie"""
     def create_parser(self):
-        # 
+        #
         parser = OptionParser()
         parser.add_option("-s", "--show", dest="show",
                 help="show list of downloaded episodes", metavar="SHOW")
@@ -29,13 +30,10 @@ class Command(BaseCommand):
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
         return getattr(self.options, "show")
-        
+
     def run(self):
-        print "list_episodes(%s)" % self.options.show
-        for epi in self.store.find(Episode,
-                Episode.show_id == Show.id,
-                Show.name == unicode(self.options.show)
-                ).order_by(Show.name):
-            print "%s|%s|%s|%3.1f" % \
-                    (epi.name, epi.filename, epi.torrent, epi.size)
+        print("list_episodes(%s)" % self.options.show)
+        for epi in self.store.episodes_by_show(self.options.show):
+            print("{}|{}|{}|{:3.1f}".format(
+                epi.name, epi.filename, epi.torrent, epi.size))
 
