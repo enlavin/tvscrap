@@ -28,7 +28,7 @@ class Command(BaseCommand):
         return True
 
     def run(self):
-        episodes = list(self.store.episodes_not_queued())
+        episodes = list(self.store.find_episodes_not_queued())
         if len(episodes) <= 0:
             print("No episodes pending")
             return

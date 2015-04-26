@@ -21,7 +21,7 @@ class Queries(object):
     def __init__(self, conn):
         self.conn = conn
 
-    def all_the_shows(self):
+    def find_all_the_shows(self):
         c = self.conn.cursor()
         try:
             c.execute("""
@@ -53,18 +53,17 @@ class Queries(object):
         try:
             c.execute("""
                 INSERT INTO episodes
-                      SELECT episodes.id, episodes.show_id, episodes.name, episodes.url, episodes.filename, episodes.torrent, episodes.size, episodes.queued, episodes.downloaded
-                      VALUES ()
-                      FROM episodes, shows
-                      WHERE shows.name = ? AND shows.id = episodes.show_id AND episodes.name = ?
-                      ORDER BY episodes.name""", (show_name, episode_number))
-            # TODO: update the ID after inserting
-            if row is None:
-                return None
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                      (episode.id, episode.show_id, episode.name, episode.url, episode.filename,
+                       episode.torrent, episode.size, episode.queued, episode.downloaded))
+            self.conn.commit()
+            episode.id = c.lastrowid
+
+            return episode
         finally:
             c.close()
 
-    def episodes_by_show(self, show_name):
+    def find_episodes_by_show(self, show_name):
         c = self.conn.cursor()
         try:
             c.execute("""
@@ -77,7 +76,7 @@ class Queries(object):
         finally:
             c.close()
 
-    def episodes_not_queued(self):
+    def find_episodes_not_queued(self):
         c = self.conn.cursor()
         try:
             c.execute("""
@@ -90,15 +89,15 @@ class Queries(object):
         finally:
             c.close()
 
-    def all_the_config_vars(self):
+    def find_all_the_config_vars(self):
         c = self.conn.cursor()
         try:
             c.execute("""
-                SELECT id, name, regexp_filter, min_size, max_size
-                FROM shows
-                ORDER BY name""")
+                SELECT varname, value
+                FROM config
+                ORDER BY varname""")
             for row in c:
-                yield Show(*row)
+                yield Config(*row)
         finally:
             c.close()
 

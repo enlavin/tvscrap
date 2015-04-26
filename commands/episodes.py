@@ -32,7 +32,7 @@ class Command(BaseCommand):
 
     def run(self):
         print("list_episodes(%s)" % self.options.show)
-        for epi in self.store.episodes_by_show(self.options.show):
+        for epi in self.store.find_episodes_by_show(self.options.show):
             print("{}|{}|{}|{:3.1f}".format(
                 epi.name, epi.filename, epi.torrent, epi.size))
 

@@ -18,7 +18,7 @@ import re
 import requests
 import tempfile
 
-from db import Show, Episode
+from db.models import Episode
 from lib.base import BaseCommand
 from lib.episodes import get_episode_number, InvalidEpisodeName
 
@@ -58,8 +58,8 @@ class FeedCommand(BaseCommand):
         if not episode:
             nospaces_name = re.sub("\s+", ".", show.name.lstrip().rstrip())
             episode = Episode(
-                id=-1,
                 show_name=show.name,
+                id=None,
                 name=episode_name,
                 show_id=show.id,
                 url="\n".join(row["url_torrent"]),
@@ -69,9 +69,8 @@ class FeedCommand(BaseCommand):
                 queued=False,
                 downloaded=False,
             )
-            self.save_episode(episode)
+            self.store.save_episode(episode)
             return episode
-        #elif episode.queued or episode.downloaded:
         else:
             print("Episodio {0}:{1} already queued or downloaded".format(
                 show.name, episode.name))
@@ -123,14 +122,14 @@ class FeedCommand(BaseCommand):
 
         self._config_feed()
 
-        shows = self.store.all_the_shows()
+        shows = list(self.store.find_all_the_shows())
         for row in self._iter_feed():
             # Importante: si no pongo list() el cursor queda abierto
             # y se queja de que hay 2 consultas SQL activas
-            for show in list(shows):
+            for show in shows:
                 if show.match(row["name"]):
                     # Prueba a descargar el fichero
-                    if not 'size' in row or row.get("size", 0) <= 0:
+                    if 'size' not in row or row.get("size", 0) <= 0:
                         # try to download .torrent file and analyze metadata to
                         # extract final file size
                         size = self.get_torrent_size(row["url_torrent"][0])

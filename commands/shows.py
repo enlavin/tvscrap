@@ -29,7 +29,7 @@ class Command(BaseCommand):
         return True
 
     def run(self):
-        shows = self.store.all_the_shows()
+        shows = self.store.find_all_the_shows()
         for show in shows:
             print("'{}' '{}' (min: {:3.1f} Mb, max: {:3.1f} Mb)".format(
                 show.name, show.regexp_filter, show.min_size, show.max_size))

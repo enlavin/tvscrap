@@ -20,8 +20,8 @@ their torrent links.
 # Place, Suite 330, Boston, MA  02111-1307  USA
 import re
 import requests
-import BeautifulSoup
-import func
+import bs4
+from lib import func
 
 
 class Scrapper(object):
@@ -52,11 +52,11 @@ class Scrapper(object):
 
         tds = trow.findAll('td')
         link = tds[1].findAll('a')[0]
-        data['name'] = unicode(link.contents[0])
+        data['name'] = link.contents[0]
         data["size"] = self._get_size(link.get("title"))
         data['url_torrent'] = []
         data['url_torrent'] += \
-            [unicode(re.sub('/tor/', '/get/', url.get('href')))
+            [re.sub('/tor/', '/get/', url.get('href'))
                 for url in tds[2].findAll('a') if url.get('href')]
 
         return data
@@ -66,18 +66,18 @@ class Scrapper(object):
         capitulos para descargar """
         if self.file:
             try:
-                fhtml = file(self.file, "rt")
+                fhtml = open(self.file, "rt")
                 html = fhtml.read()
             finally:
                 fhtml.close()
         else:
             if not self.url:
-                self.url = "https://eztv.ch/frontpage.php"
+                self.url = "https://eztv.ch/"
             resp = requests.get(self.url, timeout=60, verify=False)
             if resp.status_code != 200:
                 return
             html = resp.text
-        soup = BeautifulSoup.BeautifulSoup(html)
+        soup = bs4.BeautifulSoup(html)
         capitulos = soup.findAll('tr', attrs={'class': 'forum_header_border'})
 
         for trow in capitulos:

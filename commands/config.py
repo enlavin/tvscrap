@@ -29,7 +29,7 @@ class Command(BaseCommand):
         return True
 
     def run(self):
-        vars = self.store.all_the_config_vars()
+        vars = self.store.find_all_the_config_vars()
 
         for var in vars:
             print("{}={}".format(var.varname, var.value))
