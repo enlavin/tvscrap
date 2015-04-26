@@ -46,35 +46,35 @@ class FeedCommand(BaseCommand):
 
     def _save_new_episode(self, show, row):
         """
-        Encola en BD un nuevo episodio
+        queues a new episode
         """
         try:
             episode_name = get_episode_number(row['name'])
         except InvalidEpisodeName:
-            print "Can't find episode number. Aborting."
+            print("Can't find episode number. Aborting.")
             return
 
-        episode_name = unicode(episode_name)
-        episode = show.episodes.find(Episode.name == episode_name).one()
+        episode = self.store.find_episode_by_number(show.name, episode_name)
         if not episode:
-            episode = Episode()
-            episode.name = episode_name
             nospaces_name = re.sub("\s+", ".", show.name.lstrip().rstrip())
-            episode.filename = u"%s.%s.avi" % (nospaces_name, episode_name)
-            episode.torrent = u"%s.%s.torrent" % (nospaces_name, episode_name)
-            episode.size = row["size"]
-            episode.show = show
-            episode.queued = False
-            episode.downloaded = False
-            episode.url = u"\n".join(row["url_torrent"])
-            self.store.add(episode)
-            self.store.flush()
-            self.store.commit()
+            episode = Episode(
+                id=-1,
+                show_name=show.name,
+                name=episode_name,
+                show_id=show.id,
+                url="\n".join(row["url_torrent"]),
+                filename="{}.{}.avi".format(nospaces_name, episode_name),
+                torrent="{}.{}.torrent".format(nospaces_name, episode_name),
+                size=row["size"],
+                queued=False,
+                downloaded=False,
+            )
+            self.save_episode(episode)
             return episode
         #elif episode.queued or episode.downloaded:
         else:
-            print "Episodio %s:%s already queued or downloaded" % \
-                (show.name, episode.name)
+            print("Episodio {0}:{1} already queued or downloaded".format(
+                show.name, episode.name))
         return
 
     def get_torrent_size(self, torrent_url):
@@ -119,11 +119,11 @@ class FeedCommand(BaseCommand):
             return
 
     def run(self):
-        print "save_torrents()"
+        print("save_torrents()")
 
         self._config_feed()
 
-        shows = self.store.find(Show).order_by(Show.name)
+        shows = self.store.all_the_shows()
         for row in self._iter_feed():
             # Importante: si no pongo list() el cursor queda abierto
             # y se queja de que hay 2 consultas SQL activas
@@ -135,13 +135,13 @@ class FeedCommand(BaseCommand):
                         # extract final file size
                         size = self.get_torrent_size(row["url_torrent"][0])
                         if not size:
-                            print "Unable to get torrent size. Skipping"
+                            print("Unable to get torrent size. Skipping")
                             continue
                         row["size"] = float(size) / 1048576.0
 
                     if not show.check_size(row["size"]):
-                        print u"%s: incorrecto (%3.1f Mb)" % \
-                            (row["name"], row["size"])
+                        print("{0}: incorrecto ({1:3.1f}Mb)".format(
+                            row["name"], row["size"]))
                     else:
                         episode = self._save_new_episode(show, row)
                         if not episode:
@@ -153,8 +153,7 @@ class FeedCommand(BaseCommand):
                         #    episode.queued = True
                         #    self.store.commit()
                         #
-                        print "Queued %s %s %s %s %s" % \
-                            (show.name, episode.name,
-                                episode.torrent, episode.url,
-                                episode.filename)
+                        print("Queued {} {} {} {} {}".format(
+                            show.name, episode.name, episode.torrent,
+                            episode.url, episode.filename))
 

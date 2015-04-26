@@ -17,10 +17,12 @@ Modelos de la BD de series
 # You should have received a copy of the GNU General Public License along with
 # this program; if not, write to the Free Software Foundation, Inc., 59 Temple
 # Place, Suite 330, Boston, MA  02111-1307  USA
-import sys
 import os
 import re
-import storm.locals as st
+import sqlite3
+import sys
+import six
+
 
 class TVConfigError(Exception):
     """
@@ -29,17 +31,19 @@ class TVConfigError(Exception):
     """
     pass
 
+
+@six.python_2_unicode_compatible
 class Show(object):
     """ Modelo para almacenar una Serie """
-    __storm_table__ = 'shows'
-    id = st.Int(primary=True)
-    name = st.Unicode()
-    regexp_filter = st.Unicode()
-    min_size = st.Float()
-    max_size = st.Float()
-#    quality = st.Unicode()
 
-    def __unicode__(self):
+    def __init__(self, id, name, regexp_filter, min_size, max_size):
+        self.id = id
+        self.name = name
+        self.regexp_filter = regexp_filter
+        self.min_size = min_size
+        self.max_size = max_size
+
+    def __str__(self):
         return self.name
 
     def match(self, candidate, relax=False):
@@ -59,36 +63,49 @@ class Show(object):
     def check_size(self, size):
         """ Comprueba si el tamaño está dentro de los límites """
         return (self.max_size == 0.0 or size <= self.max_size) and \
-                (self.min_size == 0.0 or size >= self.min_size)
+            (self.min_size == 0.0 or size >= self.min_size)
 
+
+@six.python_2_unicode_compatible
 class Episode(object):
     """ Modelo para almacenar un Episodio de una serie """
-    __storm_table__ = 'episodes'
-    id = st.Int(primary=True)
-    show_id = st.Int()
-    show = st.Reference(show_id, Show.id)
-    name = st.Unicode()  # SxxEyy
-    url = st.Unicode()  # torrent urls, "\n" separated
-    filename = st.Unicode()
-    torrent = st.Unicode()
-    size = st.Float()
-    queued = st.Bool()
-    downloaded = st.Bool()
+    #id = st.Int(primary=True)
+    #show_id = st.Int()
+    #show = st.Reference(show_id, Show.id)
+    #name = st.Unicode()  # SxxEyy
+    #url = st.Unicode()  # torrent urls, "\n" separated
+    #filename = st.Unicode()
+    #torrent = st.Unicode()
+    #size = st.Float()
+    #queued = st.Bool()
+    #downloaded = st.Bool()
 
-    def __unicode__(self):
+    def __init__(self, show_name, id, show_id, name, url, filename, torrent, size, queued, downloaded):
+        self.id = id
+        self.show_id = show_id
+        self.show_name = show_name
+        self.name = name
+        self.url = url
+        self.filename = filename
+        self.torrent = torrent
+        self.size = size
+        self.queued = queued
+        self.downloaded = downloaded
+
+    def __str__(self):
         return u"%s, %s" % (self.show.name, self.name)
 
     def urls(self):
         return self.url.split("\n")
 
-Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
+#Show.episodes = st.ReferenceSet(Show.id, Episode.show_id)
 
 
 class Config(object):
     """ Modelo para manejar configuracion del programa """
     __storm_table__ = 'config'
-    varname = st.Unicode(primary=True)
-    value = st.Unicode()
+    #varname = st.Unicode(primary=True)
+    #value = st.Unicode()
 
     def __unicode__(self):
         return self.varname
@@ -125,8 +142,55 @@ def get_db_filename():
     return os.path.join(homedir, "tvscrap.db")
 
 
+class DB(object):
+    def __init__(self):
+        self.conn = sqlite3.connect(get_db_filename())
+
+    def all_the_shows(self):
+        c = self.conn.cursor()
+        try:
+            c.execute("""
+                SELECT id, name, regexp_filter, min_size, max_size
+                FROM shows
+                ORDER BY name""")
+            for row in c:
+                yield Show(*row)
+        finally:
+            c.close()
+
+    def find_episode_by_number(self, show_name, episode_number):
+        c = self.conn.cursor()
+        try:
+            c.execute("""
+                SELECT episodes.id, episodes.show_id, episodes.name, episodes.url, episodes.filename, episodes.torrent, episodes.size, episodes.queued, episodes.downloaded
+                      FROM episodes, shows
+                      WHERE shows.name = ? AND shows.id = episodes.show_id AND episodes.name = ?
+                      ORDER BY episodes.name""", (show_name, episode_number))
+            row = c.fetchone()
+            if row is None:
+                return None
+            return Episode(show_name, *row)
+        finally:
+            c.close()
+
+    def save_episode(self, episode):
+        c = self.conn.cursor()
+        try:
+            c.execute("""
+                INSERT INTO episodes
+                      SELECT episodes.id, episodes.show_id, episodes.name, episodes.url, episodes.filename, episodes.torrent, episodes.size, episodes.queued, episodes.downloaded
+                      VALUES ()
+                      FROM episodes, shows
+                      WHERE shows.name = ? AND shows.id = episodes.show_id AND episodes.name = ?
+                      ORDER BY episodes.name""", (show_name, episode_number))
+            # TODO: update the ID
+            if row is None:
+                return None
+        finally:
+            c.close()
+
+
 def connect_db():
     """ Conecta con la BD de series """
-    dsn = "sqlite:%s" % get_db_filename()
-    return st.create_database(dsn)
+    return DB()
 

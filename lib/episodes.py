@@ -6,7 +6,8 @@ RX_EPISODE_ALT = re.compile(u'(?P<episode_name>[0-9]{1,2}x[0-9]{1,2})')
 
 
 class InvalidEpisodeName(Exception):
-    pass
+    def __init__(self, episode_name):
+        self.episode_name = episode_name
 
 
 def get_episode_number(name):
