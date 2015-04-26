@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -16,10 +16,11 @@ from lib.base import BaseCommand
 from optparse import OptionParser
 from db import Show
 
+
 class Command(BaseCommand):
     """Muestra las series registradas"""
     def create_parser(self):
-        # 
+        #
         parser = OptionParser()
         self.parser = parser
         return parser
@@ -27,12 +28,9 @@ class Command(BaseCommand):
     def check_args(self, args):
         (options, _) = self.parser.parse_args(args)
         return True
-        
+
     def run(self):
-        shows = self.store.find(Show).order_by(Show.name)
+        shows = self.store.all_the_shows()
         for show in shows:
-            print "'%s' '%s' (min: %3.1f Mb, max: %3.1f Mb)" % \
-                    (show.name, show.regexp_filter,
-                            show.min_size, show.max_size)
-
-
+            print("'{}' '{}' (min: {:3.1f} Mb, max: {:3.1f} Mb)".format(
+                show.name, show.regexp_filter, show.min_size, show.max_size))
