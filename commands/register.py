@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 # GNU General Public Licence (GPL)
-# 
+#
 # This program is free software; you can redistribute it and/or modify it under
 # the terms of the GNU General Public License as published by the Free Software
 # Foundation; either version 2 of the License, or (at your option) any later
@@ -15,7 +15,8 @@
 import sys
 from lib.base import BaseCommand
 from optparse import OptionParser
-from db import Show
+from db.models import Show
+
 
 class Command(BaseCommand):
     """Registra una nueva serie en la BD"""
@@ -23,7 +24,7 @@ class Command(BaseCommand):
     def create_parser(self):
         # -r "Show" -x "rx" [-m xx] [-n xx]
         parser = OptionParser()
-        
+
         parser.set_defaults(minsize=0, maxsize=0)
 
         parser.add_option("-s", "--show", dest="show",
@@ -39,21 +40,18 @@ class Command(BaseCommand):
 
     def check_args(self, args):
         (self.options, _) = self.parser.parse_args(args)
-        args_present = getattr(self.options,'regexp') and getattr(self.options, 'show')
+        args_present = getattr(self.options, 'regexp') and getattr(self.options, 'show')
         minmax_ok = getattr(self.options, 'minsize') <= getattr(self.options, 'maxsize')
         return args_present and minmax_ok
-        
+
     def run(self):
-        show = self.store.find(Show, Show.name == unicode(self.options.show)).one()
+        show = self.store.find_show(self.options.show)
         if not show:
             show = Show()
 
-        show.name = unicode(self.options.show)
-        show.regexp_filter = unicode(self.options.regexp)
+        show.name = self.options.show
+        show.regexp_filter = self.options.regexp
         show.min_size = self.options.minsize
         show.max_size = self.options.maxsize
-        self.store.add(show)
-        self.store.commit()
-        print "%s registrado con exito" % self.options.show
-
-
+        self.store.save_show(show)
+        print("{} successfully registered".format(self.options.show))

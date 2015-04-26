@@ -6,7 +6,7 @@ import six
 class Show(object):
     """model for a tv show"""
 
-    def __init__(self, id, name, regexp_filter, min_size, max_size):
+    def __init__(self, id=None, name=None, regexp_filter=None, min_size=None, max_size=None):
         self.id = id
         self.name = name
         self.regexp_filter = regexp_filter
