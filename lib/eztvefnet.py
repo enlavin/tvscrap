@@ -26,7 +26,7 @@ import func
 
 
 class Scrapper(object):
-    """ WebScrapper for eztv.it """
+    """ WebScrapper for https://eztv.ch """
     def __init__(self):
         self.url = self.file = None
 
@@ -73,7 +73,7 @@ class Scrapper(object):
                 fhtml.close()
         else:
             if not self.url:
-                self.url = "http://eztv.ch/frontpage.php"
+                self.url = "https://eztv.ch/"
             resp = requests.get(self.url, timeout=60, verify=False)
             if resp.status_code != 200:
                 return
@@ -81,14 +81,8 @@ class Scrapper(object):
         soup = BeautifulSoup.BeautifulSoup(html)
         capitulos = soup.findAll('tr', attrs={'class': 'forum_header_border'})
 
-        result = []
         for trow in capitulos:
             try:
-                #result.append(self._parse_episode(trow))
                 yield self._parse_episode(trow)
             except:
                 pass
-
-        #return result
-
-
