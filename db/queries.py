@@ -53,8 +53,9 @@ class Queries(object):
         try:
             c.execute("""
                 INSERT INTO episodes
-                      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)""",
-                      (episode.id, episode.show_id, episode.name, episode.url, episode.filename,
+                      (show_id, name, url, filename, torrent, size, queued, downloaded)
+                      VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+                      (episode.show_id, episode.name, episode.url, episode.filename,
                        episode.torrent, episode.size, episode.queued, episode.downloaded))
             self.conn.commit()
             episode.id = c.lastrowid

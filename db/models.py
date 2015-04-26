@@ -49,9 +49,9 @@ class Episode(object):
         self.url = url
         self.filename = filename
         self.torrent = torrent
-        self.size = size
-        self.queued = queued
-        self.downloaded = downloaded
+        self.size = float(size)
+        self.queued = int(queued) != 0
+        self.downloaded = int(downloaded) != 0
 
     def __str__(self):
         return u"%s, %s" % (self.show.name, self.name)

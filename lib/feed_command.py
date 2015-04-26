@@ -60,8 +60,8 @@ class FeedCommand(BaseCommand):
             episode = Episode(
                 show_name=show.name,
                 id=None,
-                name=episode_name,
                 show_id=show.id,
+                name=episode_name,
                 url="\n".join(row["url_torrent"]),
                 filename="{}.{}.avi".format(nospaces_name, episode_name),
                 torrent="{}.{}.torrent".format(nospaces_name, episode_name),
